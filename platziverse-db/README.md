@@ -16,7 +16,7 @@ setupDabase(config).then(db => {
 ```
 
 ##Comandos corridos:
-``` js
+``
 mkdir platizverse
 cd platizverse
 ls
@@ -28,14 +28,14 @@ ls
 touch index.js // me crea un archivo
 code . // me abre visual studio code con ese espacio de trabajo
 touch README.md
-```
+``
 
 ##Comandos con los que se subio el proyecto:
-``` js
+``
 git remote add origin "agrego el link de git despues de crear el archivo"
 git add .
 git commit -m "mensaje"
 git tag 6.1.0
 git push origin master
 git push origin master --tags
-```
+``
