@@ -3,15 +3,16 @@
 ## Uso
 
 ``` js
-const setupDatabase = require('platziverse-db')
+const setupDatabase = require('platziverse-db') // me retorna una funcion que me
+                                                // va a devolver el objeto de base
+                                                // de datos db
 
 setupDabase(config).then(db => {
-    const { Agent, Metric} = db
-
-    // antes de ecmascript6 se hacia asi:
-    // const Agent = db.Agent
-    // const Metric = db.Metric
-    
+    const { Agent, Metric} = db // mi objeto db tiene dos objetos (el agente y la metrica)
+                                // objet structuring:
+                                // antes de ecmascript6 se hacia asi...
+                                // const Agent = db.Agent
+                                // const Metric = db.Metric
 }).catch(err => console.error(err))
 ```
 
