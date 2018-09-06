@@ -1,8 +1,8 @@
 'use strict'
 
-const debug = require('debug')('platziverse:db:setup')
-// proyecto platziverse, modulo db, funcionalidad setup
 const db = require('./')
+// recordar correr npm "i debug --save" para instalarlo
+const debug = require('debug')('platziverse:db:setup') // proyecto platziverse, modulo db, funcionalidad setup
 
 async function setup () {
   const config = { // informacion que necesita sequelize para funcionar
@@ -13,7 +13,7 @@ async function setup () {
     dialect: 'postgres', // sequelize nos permite trabajar con mysql, oracle, etc... aca decimos
     // con que tipo de db trabajamos, y sequelize simplifica todo sin tener que tocar el codigo
     logging: s => debug(s), // hacemos un debug para saber que tipo de datos esta devolviendo la db
-    // recordar correr: npm i debug --save
+    // recordar correr "npm i debug --save"
     // para que se muestren log debo tener una variable de entorno configurada
     setup: true // esta propiedad es util para definir si crear la db o no
     // true: borra - false: no borra

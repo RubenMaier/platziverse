@@ -19,9 +19,9 @@ module.exports = async function (config) { // exportamos una funcion que recibe 
 
   // configuramos la db
   // toda la definicion de los modelos que haya en la db si no existen, las crea
-  if(config.setup) {
+  if (config.setup) {
     await sequelize.sync({ force: true }) // si la db existe, borro y creo una nueva
-  } 
+  }
 
   const Agent = {} // creamos los objetos
   const Metric = {}

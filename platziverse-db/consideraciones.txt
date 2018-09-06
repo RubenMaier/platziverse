@@ -1,0 +1,14 @@
+
+COMANDOS PARA ACCEDER POR TERMINAL A CREAR COSAS EN LA DB:
+
+psql postgres
+CREATE ROLE platzi WITH LOGIN PASSWORD 'platzi';
+CREATE DATABASE platziverse;
+GRANT ALL PRIVILEGES ON DATABASE platziverse TO platzi;
+\quit
+
+--------------------
+
+Se debe instalar:
+- brew en Mac como gestor de paquetes para instalar postgres y redis
+- chocolaty en Win como gestor de paquetes para instalar postgres y redis
