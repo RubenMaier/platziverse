@@ -3,8 +3,26 @@
 const db = require('./')
 // recordar correr npm "i debug --save" para instalarlo
 const debug = require('debug')('platziverse:db:setup') // proyecto platziverse, modulo db, funcionalidad setup
+// recordar correr "npm i inquirer" 
+const inquirer = require('inquirer') // nos permite hacer preguntas en consola y mediante respuestas tomar decisiones
+// recordar correr "npm i chalk"
+const chalk = require('chalk') // permite estilizar cosas en la consola
+
+const prompt = inquirer.createPromptModule() // creamos un objeto de prompt (nos permite hacer preguntas en forma de promesas)
 
 async function setup () {
+  const answer = await prompt([
+    {
+      type: 'confirm', // confirmación (sí o no)
+      name: 'setup', // la respuesta la guarda en una propiedad llamada "setup"
+      message: 'Esto va a destruir la base de datos, ¿Esta seguro?' // mensaje de la pregunta
+    }
+  ])  // recibimos la respuesta del usuario aca
+
+  if(!answer.setup) {
+    return console.log('No pasa nada, no la borramos')
+  }
+
   const config = { // informacion que necesita sequelize para funcionar
     database: process.env.DB_NAME || 'platziverse', // queremos poder tener este modulo configurable
     username: process.env.DB_USER || 'platzi', // vamos a pasar variables de entorno
@@ -26,8 +44,8 @@ async function setup () {
 }
 
 function handleFatalError (err) {
-  console.error(err.message)
-  console.error(err.stack) // para saber exactamente que error ocurrio
+  console.error(`${chalk.red('[error]')} ${err.message}`) // mostramos el mensaje de error con chalk de forma mas bonita en color rojo
+  console.error(`${chalk.gray(err.stack)}`) // para saber exactamente que error ocurrio
   process.exit(1) // matamos el proceso
 }
 

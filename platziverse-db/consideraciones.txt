@@ -12,3 +12,8 @@ GRANT ALL PRIVILEGES ON DATABASE platziverse TO platzi;
 Se debe instalar:
 - brew en Mac como gestor de paquetes para instalar postgres y redis
 - chocolaty en Win como gestor de paquetes para instalar postgres y redis
+
+
+cuando anidamos comandos en windows tener en cuenta que:
+- En cmd se hace así: SET DB_PASS='saraza' && npm run setup-win
+- En powershell se hace así: SET DB_PASS='saraza'; npm run setup-win
