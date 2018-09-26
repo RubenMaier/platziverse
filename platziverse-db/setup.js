@@ -3,7 +3,7 @@
 const db = require('./')
 // recordar correr npm "i debug --save" para instalarlo
 const debug = require('debug')('platziverse:db:setup') // proyecto platziverse, modulo db, funcionalidad setup
-// recordar correr "npm i inquirer" 
+// recordar correr "npm i inquirer"
 const inquirer = require('inquirer') // nos permite hacer preguntas en consola y mediante respuestas tomar decisiones
 // recordar correr "npm i chalk"
 const chalk = require('chalk') // permite estilizar cosas en la consola
@@ -17,9 +17,9 @@ async function setup () {
       name: 'setup', // la respuesta la guarda en una propiedad llamada "setup"
       message: 'Esto va a destruir la base de datos, ¿Esta seguro?' // mensaje de la pregunta
     }
-  ])  // recibimos la respuesta del usuario aca
+  ]) // recibimos la respuesta del usuario aca
 
-  if(!answer.setup) {
+  if (!answer.setup) {
     return console.log('No pasa nada, no la borramos')
   }
 

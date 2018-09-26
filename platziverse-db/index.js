@@ -6,11 +6,32 @@ const setupDatabase = require('./lib/db')
 const setupAgentModel = require('./models/agent')
 const setupMetricModel = require('./models/metric')
 
+// usamos un modulo que nos permite poner como default un objeto de configuracion
+// debemos instalar el modulo con: "npm i --save defaults"
+const defaults = require('defaults')
+
 module.exports = async function (config) { // exportamos una funcion que recibe una configuracion
+  // le aplicamos ciertos parametros por defacto a los parametros de configuracion
+  // redefinimos config
+  config = defaults(config, {
+    // debemos instalar sqlite con: "npm i sqlite3 --save-dev"
+    dialect: 'sqlite', // por defecto definimos otra DB para no usar la posta (usamos sqlite para pruebas)
+    pool: { // me permite definir el limte de conexiones con las que quiero trabajar
+      max: 10,
+      min: 0,
+      idle: 10000 // si con la conexion no pasa nada en 10 segundos la saca del pool de conexiones
+    },
+    query: {
+      raw: true // quiero que solo me devuelva objetos sencillos, sin tanto bardo
+    }
+  }) // si config no esta definido le asigna el objeto de alado
+
   const sequelize = setupDatabase(config)
-  const AgentModel = setupAgentModel(config) // lo definimos asi para poder a futuro hacer uso de
-  const MetricModel = setupMetricModel(config) // los stubs y mocks asi le agregamos funciones
-  // falsas para hacer pruebas sin conectarlo necesariamente a la base de datos
+
+  // lo definimos asi para poder a futuro hacer uso de los stubs y mocks asi le agregamos
+  // funciones falsas para hacer pruebas sin conectarlo necesariamente a la base de datos:
+  const AgentModel = setupAgentModel(config) 
+  const MetricModel = setupMetricModel(config)
 
   AgentModel.hasMany(MetricModel) // defino que el modelo de agente tiene muchas metricas
   MetricModel.belongsTo(AgentModel) // defino que el modelo de metrica pertenece a un agente
@@ -29,28 +50,5 @@ module.exports = async function (config) { // exportamos una funcion que recibe 
   return {
     Agent, // y cuando llamen a la funcion los retornamos
     Metric
-  }
-
-  // antes de ecmascript6 se hacia asi:
-  // return {
-  //     Agent: Agent,
-  //     Metric: Metric
-  // }
-
-  // recordar correr el comando:
-  // npm i --save-dev standard
-  // (este flag "--save-dev" se coloca para decirle que lo agregue
-  // como dependencia de desarrollo)
-  // el objetivo de esto es poder hacer uso del a herramienta "lind"
-  // que nos permitira llevar acabo
-  // buenas practicas de desarrollo
-
-  // modificar tambien el arhivo package.json luego de haber corrido
-  // el comando y agregar el siguiente script:
-  // "lint": "standard"
-
-  // tener en cuenta que con el comando:
-  // npm run lint -- --fix
-  // podemos corregir los errores detectados al correr el script
-  // creado anteriormente
+  }w
 }
