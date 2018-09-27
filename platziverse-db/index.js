@@ -30,7 +30,7 @@ module.exports = async function (config) { // exportamos una funcion que recibe 
 
   // lo definimos asi para poder a futuro hacer uso de los stubs y mocks asi le agregamos
   // funciones falsas para hacer pruebas sin conectarlo necesariamente a la base de datos:
-  const AgentModel = setupAgentModel(config) 
+  const AgentModel = setupAgentModel(config)
   const MetricModel = setupMetricModel(config)
 
   AgentModel.hasMany(MetricModel) // defino que el modelo de agente tiene muchas metricas
@@ -50,5 +50,5 @@ module.exports = async function (config) { // exportamos una funcion que recibe 
   return {
     Agent, // y cuando llamen a la funcion los retornamos
     Metric
-  }w
+  }
 }
