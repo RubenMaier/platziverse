@@ -25,17 +25,5 @@ En este caso usaremos NYC que es una extención (gruaper) de estambul
 npm i nyc --save-dev
 
 
+fixtures -> es un set de datos falsos (set de datos de prueba) con los que trabajaremos
 
-
-queremos probar los modelos sin conectarnos a la DB posta
-servicios -> modelos -> conexion a DB
-
-stubs: objeto similar al objeto original (al modelo) contiene los metodos
-pero estan previamente los argumentos y las respuestas especificados por una libreria
-para esto usaremos:
-npm i sinon --save-dev
-
-necesitamos sobreescribir los modelos desde afuera, pero no tenemos acceso a ello porque los requerimos en el index y no en el agent-tests
-para eso usaremos:
-npm i proxyquire --save-dev
-utilidad que nos permite requerir un modulo pero sobreescribir los require

@@ -10,6 +10,8 @@ const setupMetricModel = require('./models/metric')
 // debemos instalar el modulo con: "npm i --save defaults"
 const defaults = require('defaults')
 
+const setupAgent = require('./lib/agent')
+
 module.exports = async function (config) { // exportamos una funcion que recibe una configuracion
   // le aplicamos ciertos parametros por defacto a los parametros de configuracion
   // redefinimos config
@@ -44,7 +46,7 @@ module.exports = async function (config) { // exportamos una funcion que recibe 
     await sequelize.sync({ force: true }) // si la db existe, borro y creo una nueva
   }
 
-  const Agent = {} // creamos los objetos
+  const Agent = setupAgent(AgentModel) // creamos los objetos
   const Metric = {}
 
   return {

@@ -12,11 +12,15 @@ const test = require('ava') // recordar que debemos instalarlo con npm a modo de
 // npm i sinon --save-dev
 const sinon = require('sinon')
 
-// necesitamos sobreescribir los modelos desde afuera, pero no tenemos acceso a ello porque los requerimos en el index y no en el agent-tests
+// necesitamos sobreescribir los modelos desnde afuera, pero no tenemos acceso a ello porque
+// los requerimos en el index y no en el agent-tests
 // para eso usaremos:
 // npm i proxyquire --save-dev
 // utilidad que nos permite requerir un modulo pero sobreescribir los require
 const proxyquire = require('proxyquire')
+
+// fixtures -> es un set de datos falsos (set de datos de prueba) con los que trabajaremos
+const agentFixtures = require('./fixtures/agent')
 
 // no queremos una conexion real a la DB
 // queremos una DB de prueba...
@@ -29,6 +33,13 @@ let MetricStub = {
   belongsTo: sinon.spy()
 } // un spy es un espia que ocntrola la función y nos permite poder hacer consultas
 // saber cuantas veces fue llamada, o con que argumentos, etc...
+
+// clonamos el objeto single
+// esto lo hacemos para que cuando estemos haciendo los stubs, no estemos
+//  con la unica instancia que nos retorna AgentFixtures
+let single = Object.assign({}, agentFixtures.single)
+
+let id = 1
 
 let AgentStub = null
 
@@ -81,6 +92,12 @@ test.serial('Setup', t => {
   t.true(MetricStub.belongsTo.calledWith(AgentStub), 'El argumento debería ser el AgentModel')
 }) // hacemos esto de ponerlo en 'serie' para asegurar que nuestro entorno de stubs no este saturado
 // recordar que ava corre de forma paralela los test
+
+test.serial('Agent#findById', async t => {
+  let agent = await db.Agent.findById(id) // obtenemos un agente
+  // comparo si el objeto que obtengo es igual al agente que obtengo con el id "id"
+  t.deepEqual(agent, agentFixtures.byId(id), 'Deberian ser los mismos objetos')
+})
 
 test('este test pasa siempre', t => { // es un pequeño test que no falla nunca
   t.pass() // le decimos que lo pase

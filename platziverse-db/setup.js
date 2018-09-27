@@ -11,7 +11,7 @@ const chalk = require('chalk') // permite estilizar cosas en la consola
 const prompt = inquirer.createPromptModule() // creamos un objeto de prompt (nos permite hacer preguntas en forma de promesas)
 
 async function setup () {
-  const answer = await prompt([
+  const respuesta = await prompt([
     {
       type: 'confirm', // confirmación (sí o no)
       name: 'setup', // la respuesta la guarda en una propiedad llamada "setup"
@@ -19,7 +19,7 @@ async function setup () {
     }
   ]) // recibimos la respuesta del usuario aca
 
-  if (!answer.setup) {
+  if (!respuesta.setup) {
     return console.log('No pasa nada, no la borramos')
   }
 
@@ -37,13 +37,13 @@ async function setup () {
     // true: borra - false: no borra
   }
 
-  await db(config).catch(handleFatalError) // obtenemos el objeto de db, si hay errores lo capturo
+  await db(config).catch(manejoDeError) // obtenemos el objeto de db, si hay errores lo capturo
 
   console.log('Exito!')
   process.exit(0)
 }
 
-function handleFatalError (err) {
+function manejoDeError (err) {
   console.error(`${chalk.red('[error]')} ${err.message}`) // mostramos el mensaje de error con chalk de forma mas bonita en color rojo
   console.error(`${chalk.gray(err.stack)}`) // para saber exactamente que error ocurrio
   process.exit(1) // matamos el proceso
