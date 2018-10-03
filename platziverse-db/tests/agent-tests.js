@@ -62,7 +62,10 @@ test.beforeEach(async () => {
     hasMany: sandbox.spy()
   }
 
-  // inyectemos estos dos stubs a nuestro modelo con poxyquire
+  AgentStub.findById = sandbox.stub()
+  AgentStub.findById.withArgs(id).returns(Promise.resolve(agentFixtures.byId(id)))
+
+  // inyectemos es tos dos stubs a nuestro modelo con poxyquire
   const setupDatabase = proxyquire('../', {
     './models/agent': () => AgentStub,
     './models/metric': () => MetricStub
@@ -95,6 +98,10 @@ test.serial('Setup', t => {
 
 test.serial('Agent#findById', async t => {
   let agent = await db.Agent.findById(id) // obtenemos un agente
+  // usamos las mismas pruebas que hicimos con spy pero con stub
+  t.true(AgentStub.findById.called, 'findById debe haber sido llamada')
+  t.true(AgentStub.findById.calledOnce, 'findById debe ser llamada solo una vez')
+  t.true(AgentStub.findById.calledWith(id), 'findById debe ser llamada con el id especifico')
   // comparo si el objeto que obtengo es igual al agente que obtengo con el id "id"
   t.deepEqual(agent, agentFixtures.byId(id), 'Deberian ser los mismos objetos')
 })
