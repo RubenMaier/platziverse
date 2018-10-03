@@ -31,7 +31,7 @@ let config = {
 // objeto que representa el modelo y tiene los metodos correspondientes
 let MetricStub = {
   belongsTo: sinon.spy()
-} // un spy es un espia que ocntrola la función y nos permite poder hacer consultas
+} // un spy es un espia que controla la función y nos permite poder hacer consultas
 // saber cuantas veces fue llamada, o con que argumentos, etc...
 
 // clonamos el objeto single
@@ -54,9 +54,20 @@ let db = null
 // un test diferente
 let sandbox = null
 
-// ava tiene "hooks", podemos correr funciones antes de cada uno de los test:
-test.beforeEach(async () => {
+let uuid = 'yyy-yyy-yyy'
+
+let uuidArgs = {
+  where: {
+    uuid
+  }
+}
+
+// ava tiene "hooks"...
+
+test.beforeEach(async () => { // este hook se corre antes de correr cada uno de los test (ojo, si estan en serie, sino es en paralelo)
+  // podemos correr funciones antes de cada uno de los test:
   sandbox = sinon.sandbox.create() // creamos el sandbox cada vez que se ejecuta un test
+
   // aca lo implementamos
   AgentStub = {
     hasMany: sandbox.spy()
@@ -65,12 +76,17 @@ test.beforeEach(async () => {
   AgentStub.findById = sandbox.stub()
   AgentStub.findById.withArgs(id).returns(Promise.resolve(agentFixtures.byId(id)))
 
-  // inyectemos es tos dos stubs a nuestro modelo con poxyquire
+  AgentStub.findOne = sandbox.stub()
+  AgentStub.findOne.withArgs(uuidArgs).returns(Promise.resolve(agentFixtures.byUuid(uuid)))
+
+  AgentStub.update = sandbox.stub()
+  AgentStub.update.withArgs(single, uuidArgs).returns(Promise.resolve(single))
+
+  // inyectemos estos dos stubs a nuestro modelo con poxyquire
   const setupDatabase = proxyquire('../', {
     './models/agent': () => AgentStub,
     './models/metric': () => MetricStub
-  }) // cuando yo requiera el objeto de '../' que sería de index.js,
-  // sobreescribe con los stubs
+  }) // cuando yo requiera el objeto de '../' que sería de index.js, sobreescribe con los stubs
 
   /* Dejamos esto de lado porque usamos el proxyquire ahora
   * // antes de cada uno de los test ejecuta la siguiente funcion asincrona
@@ -79,12 +95,19 @@ test.beforeEach(async () => {
   db = await setupDatabase(config) // define una variable global de DB
 })
 
-test.afterEach(() => {
+test.afterEach(() => { // esto se ejecuta luego de correr cada uno de los test... (ojo, si estan en serie)
   sandbox && sinon.sandbox.restore() // si existe el sandbox luego de correr el test,
-  // entonces lo reiniciamos y recreamos
+  // entonces lo reiniciamos y recreamos el sandbox
 })
 
-test('Agent', t => {
+// aca vamos a poner la seguidilla de test que se van a ejecutar:
+
+test('este test pasa siempre', t => { // es un pequeño test que no falla nunca
+  t.pass() // le decimos que lo pase
+}) // recordar definir el script para correr las pruebas en el package.json
+// el flag --verbose me permite obtener infromacion de cada test ejecutado por el script
+
+test.serial('Agent', t => {
   t.truthy(db.Agent, 'El servicio de Agente deberia existir') // existe un valor distinto de 0 o vacio
 })
 
@@ -106,7 +129,10 @@ test.serial('Agent#findById', async t => {
   t.deepEqual(agent, agentFixtures.byId(id), 'Deberian ser los mismos objetos')
 })
 
-test('este test pasa siempre', t => { // es un pequeño test que no falla nunca
-  t.pass() // le decimos que lo pase
-}) // recordar definir el script para correr las pruebas en el package.json
-// el flag --verbose me permite obtener infromacion de cada test ejecutado por el script
+test.serial('Agent#createOrUpdate - cuando el usuario existe', async t => {
+  let agent = await db.Agent.createOrUpdate(single)
+  t.true(AgentStub.findOne.called, 'findOne debe ser llamado en el modelo')
+  t.true(AgentStub.findOne.calledTwice, 'findone debe haber sido llamado 2 veces para ser actualizado')
+  t.true(AgentStub.update.calledOnce, 'update debe haber sido llamado 1 sola veces para ser actualizado')
+  t.deepEqual(agent, single, 'El agente debería ser el mismo')
+})
