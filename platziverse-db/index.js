@@ -11,6 +11,7 @@ const setupMetricModel = require('./models/metric')
 const defaults = require('defaults')
 
 const setupAgent = require('./lib/agent')
+const setupModel = require('./lib/model')
 
 module.exports = async function (config) { // exportamos una funcion que recibe una configuracion
   // le aplicamos ciertos parametros por defacto a los parametros de configuracion
@@ -47,7 +48,7 @@ module.exports = async function (config) { // exportamos una funcion que recibe 
   }
 
   const Agent = setupAgent(AgentModel) // creamos los objetos
-  const Metric = {}
+  const Metric = setupModel(MetricModel, AgentModel)
 
   return {
     Agent, // y cuando llamen a la funcion los retornamos

@@ -143,7 +143,7 @@ test.serial('Agent', t => {
   t.truthy(db.Agent, 'El servicio de Agente deberia existir') // existe un valor distinto de 0 o vacio
 })
 
-test.serial('Setup', t => {
+test.serial('Setup Agent', t => {
   t.true(AgentStub.hasMany.called, 'AgentModel.hasMany fue ejecutada') // garantizan que fue llamada
   t.true(AgentStub.hasMany.calledWith(MetricStub), 'El argumento debería ser el MetricModel') // garantiza que fue llamada con X parametro
   t.true(MetricStub.belongsTo.called, 'MetricModel.belongsTo fue ejecutada')
@@ -196,7 +196,7 @@ test.serial('Agent#findAll', async t => {
   t.true(AgentStub.findAll.calledOnce, 'findAll deberia ser llamado 1 vez')
   t.true(AgentStub.findAll.calledWith(), 'findAll deberia ser llamado sin argumentos')
   t.is(agents.length, agentFixtures.all.length, 'deberían tener la misma cantidad de agentes')
-  t.deepEqual(agents, agentFixtures.all, 'los agentes deberían ser el mismo')
+  t.deepEqual(agents, agentFixtures.all, 'los agentes deberían ser los mismos')
 })
 
 test.serial('Agent#findConnected', async t => {
@@ -205,7 +205,7 @@ test.serial('Agent#findConnected', async t => {
   t.true(AgentStub.findAll.calledOnce, 'findAll deberia ser llamado 1 vez')
   t.true(AgentStub.findAll.calledWith(connectedArgs), 'findAll deberia ser llamado con el argumento connected')
   t.is(agents.length, agentFixtures.connected.length, 'deberían tener la misma cantidad de agentes')
-  t.deepEqual(agents, agentFixtures.connected, 'los agentes deberían ser el mismo')
+  t.deepEqual(agents, agentFixtures.connected, 'los agentes deberían ser los mismos')
 })
 
 test.serial('Agent#findByUsername', async t => {
@@ -214,5 +214,5 @@ test.serial('Agent#findByUsername', async t => {
   t.true(AgentStub.findAll.calledOnce, 'findAll deberia ser llamado 1 vez')
   t.true(AgentStub.findAll.calledWith(usernameArgs), 'findAll deberia ser llamado con el argumento username')
   t.is(agents.length, agentFixtures.platzi.length, 'deberían tener la misma cantidad de agentes')
-  t.deepEqual(agents, agentFixtures.platzi, 'los agentes deberían ser el mismo')
+  t.deepEqual(agents, agentFixtures.platzi, 'los agentes deberían ser los mismos')
 })

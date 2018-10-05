@@ -6,7 +6,8 @@ module.exports = function setupAgent (AgentModel) { // exportamos una función
     return AgentModel.findById(id)
   }
 
-  async function createOrUpdate (agent) {
+  async function createOrUpdate (agent) { // tambien le añadimos la funcion de actualizar porque el agente puede estar conectado o no
+    // en cambio las metricas siempre no tienen ese estado, así que ante un cambio en el estado del agente, debemos poder actualizarlo
     const condicion = { // es un objeto sequelize
       where: {
         uuid: agent.uuid // esto es similar a un "select X where uuid = uuid form Y"
