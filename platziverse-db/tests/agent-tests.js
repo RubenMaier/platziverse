@@ -62,6 +62,28 @@ let uuidArgs = {
   }
 }
 
+let connectedArgs = {
+  where: {
+    connected: true
+  }
+}
+
+let usernameArgs = {
+  where: {
+    username: 'platzi',
+    connected: true
+  }
+}
+
+let newAgent = {
+  uuid: '123-123-123',
+  name: 'test',
+  username: 'test',
+  hostname: 'test',
+  pid: 0,
+  connected: false
+}
+
 // ava tiene "hooks"...
 
 test.beforeEach(async () => { // este hook se corre antes de correr cada uno de los test (ojo, si estan en serie, sino es en paralelo)
@@ -81,6 +103,16 @@ test.beforeEach(async () => { // este hook se corre antes de correr cada uno de 
 
   AgentStub.update = sandbox.stub()
   AgentStub.update.withArgs(single, uuidArgs).returns(Promise.resolve(single))
+
+  AgentStub.create = sandbox.stub()
+  AgentStub.create.withArgs(newAgent).returns(Promise.resolve({
+    toJSON () { return newAgent }
+  }))
+
+  AgentStub.findAll = sandbox.stub()
+  AgentStub.findAll.withArgs(connectedArgs).returns(Promise.resolve(agentFixtures.connected))
+  AgentStub.findAll.withArgs(usernameArgs).returns(Promise.resolve(agentFixtures.platzi))
+  AgentStub.findAll.withArgs().returns(Promise.resolve(agentFixtures.all))
 
   // inyectemos estos dos stubs a nuestro modelo con poxyquire
   const setupDatabase = proxyquire('../', {
@@ -135,4 +167,52 @@ test.serial('Agent#createOrUpdate - cuando el usuario existe', async t => {
   t.true(AgentStub.findOne.calledTwice, 'findone debe haber sido llamado 2 veces para ser actualizado')
   t.true(AgentStub.update.calledOnce, 'update debe haber sido llamado 1 sola veces para ser actualizado')
   t.deepEqual(agent, single, 'El agente debería ser el mismo')
+})
+
+test.serial('Agent#createOrUpdate - cuando el usuario es nuevo', async t => {
+  let agent = await db.Agent.createOrUpdate(newAgent)
+  t.true(AgentStub.findOne.called, 'findOne deberia ser llamado en el modelo')
+  t.true(AgentStub.findOne.calledOnce, 'findOne deberia ser llamado 1 vez')
+  t.true(AgentStub.findOne.calledWith({
+    where: { uuid: newAgent.uuid }
+  }), 'findOne deberia ser llamado con uuid como argumento')
+  t.true(AgentStub.create.called, 'create deberia ser llamado en el modelo')
+  t.true(AgentStub.create.calledOnce, 'create deberia ser llamado 1 vez')
+  t.true(AgentStub.create.calledWith(newAgent), 'create debe ser llamado con argumentos especificos')
+  t.deepEqual(agent, newAgent, 'El agente debería ser el mismo')
+})
+
+test.serial('Agent#findByUuid', async t => {
+  let agent = await db.Agent.findByUuid(uuid)
+  t.true(AgentStub.findOne.called, 'findOne deberia ser llamado en el modelo')
+  t.true(AgentStub.findOne.calledOnce, 'findOne deberia ser llamado 1 vez')
+  t.true(AgentStub.findOne.calledWith(uuidArgs), 'findOne deberia ser llamado con uuid como argumento')
+  t.deepEqual(agent, agentFixtures.byUuid(uuid), 'El agente debería ser el mismo')
+})
+
+test.serial('Agent#findAll', async t => {
+  let agents = await db.Agent.findAll()
+  t.true(AgentStub.findAll.called, 'findAll deberia ser llamado en el modelo')
+  t.true(AgentStub.findAll.calledOnce, 'findAll deberia ser llamado 1 vez')
+  t.true(AgentStub.findAll.calledWith(), 'findAll deberia ser llamado sin argumentos')
+  t.is(agents.length, agentFixtures.all.length, 'deberían tener la misma cantidad de agentes')
+  t.deepEqual(agents, agentFixtures.all, 'los agentes deberían ser el mismo')
+})
+
+test.serial('Agent#findConnected', async t => {
+  let agents = await db.Agent.findConnected()
+  t.true(AgentStub.findAll.called, 'findAll deberia ser llamado en el modelo')
+  t.true(AgentStub.findAll.calledOnce, 'findAll deberia ser llamado 1 vez')
+  t.true(AgentStub.findAll.calledWith(connectedArgs), 'findAll deberia ser llamado con el argumento connected')
+  t.is(agents.length, agentFixtures.connected.length, 'deberían tener la misma cantidad de agentes')
+  t.deepEqual(agents, agentFixtures.connected, 'los agentes deberían ser el mismo')
+})
+
+test.serial('Agent#findByUsername', async t => {
+  let agents = await db.Agent.findByUsername('platzi')
+  t.true(AgentStub.findAll.called, 'findAll deberia ser llamado en el modelo')
+  t.true(AgentStub.findAll.calledOnce, 'findAll deberia ser llamado 1 vez')
+  t.true(AgentStub.findAll.calledWith(usernameArgs), 'findAll deberia ser llamado con el argumento username')
+  t.is(agents.length, agentFixtures.platzi.length, 'deberían tener la misma cantidad de agentes')
+  t.deepEqual(agents, agentFixtures.platzi, 'los agentes deberían ser el mismo')
 })

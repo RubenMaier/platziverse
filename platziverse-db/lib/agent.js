@@ -12,6 +12,7 @@ module.exports = function setupAgent (AgentModel) { // exportamos una función
         uuid: agent.uuid // esto es similar a un "select X where uuid = uuid form Y"
       }
     }
+
     // obtenemos un agente existente
     const existingAgent = await AgentModel.findOne(condicion) // findOne nos retorna la primer ocurrencia que cumpla con la condicion que se acaba de pasar
 
@@ -25,8 +26,41 @@ module.exports = function setupAgent (AgentModel) { // exportamos una función
     return result.toJSON() // retornamos el objeto json del modelo agregado en la DB porque sequelize sino me devuelve un monton de pelotudeces mas
   }
 
+  function findByUuid (uuid) {
+    return AgentModel.findOne({
+      where: {
+        uuid
+      }
+    })
+  }
+
+  function findAll () { // es un grap
+    return AgentModel.findAll()
+  }
+
+  function findConnected () {
+    return AgentModel.findAll({
+      where: {
+        connected: true
+      }
+    })
+  }
+
+  function findByUsername (username) {
+    return AgentModel.findAll({
+      where: {
+        username: username,
+        connected: true
+      }
+    })
+  }
+
   return {
     findById,
-    createOrUpdate
+    createOrUpdate,
+    findByUuid,
+    findAll,
+    findConnected,
+    findByUsername
   }
 }

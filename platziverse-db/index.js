@@ -47,7 +47,6 @@ module.exports = async function (config) { // exportamos una funcion que recibe 
   }
 
   const Agent = setupAgent(AgentModel) // creamos los objetos
-  console.log('Soy el Agent', Agent)
   const Metric = {}
 
   return {
