@@ -1,5 +1,9 @@
 'use strict'
 
+const utils = require('../../utils/extend')
+
+const extend = utils.extend
+
 const agent = { // creamos un objeto de un agente
   id: 1,
   uuid: 'yyy-yyy-yyy',
@@ -18,11 +22,6 @@ const agents = [ // tambien creamos un arreglo de agentes por si queremos listar
   extend(agent, { id: 3, uuid: 'yyy-yyy-yyx' }),
   extend(agent, { id: 4, uuid: 'yyy-yyy-yyz', username: 'test' })
 ] // de momento le ponemos 4 agentes, 3 son clonados del primero con algunos atributos cambiados
-
-function extend (obj, values) { // funcion para clonar objetos
-  const clone = Object.assign({}, obj) // ecs5 - al objeto vacio (que me lo crea como una posicion de memoria distinta) le agregaremos las propiedades de obj que queremos clonar
-  return Object.assign(clone, values) // luego le agregamos a ese clon los atributos nuevos que lo harán distinto
-}
 
 module.exports = {
   single: agent, // me devuelve solo 1 agente y el primero creado

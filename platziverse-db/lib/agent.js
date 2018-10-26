@@ -50,7 +50,7 @@ module.exports = function setupAgent (AgentModel) { // exportamos una función
   function findByUsername (username) {
     return AgentModel.findAll({
       where: {
-        username: username,
+        username,
         connected: true
       }
     })

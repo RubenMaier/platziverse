@@ -26,7 +26,8 @@ module.exports = async function (config) { // exportamos una funcion que recibe 
     },
     query: {
       raw: true // quiero que solo me devuelva objetos sencillos, sin tanto bardo
-    }
+    },
+    operatorsAliases: false
   }) // si config no esta definido le asigna el objeto de alado
 
   const sequelize = setupDatabase(config)
