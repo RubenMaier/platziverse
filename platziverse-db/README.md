@@ -1,5 +1,22 @@
 # platziverse-db
 
+## configuración
+
+### 1
+instalar: postgres, redis, vagrant y 
+### 2
+correr:
+npm i
+### 3
+correr:
+npm run setup-mac
+### 4
+y puedes correr:
+npm run test-mac
+o
+node examples/index.js
+
+
 ## Uso
 
 ``` js
