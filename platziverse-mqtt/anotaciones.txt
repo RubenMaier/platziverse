@@ -1,0 +1,6 @@
+# modulo 6
+## video 3
+Instalamos mqtt con el comando:
+npm install -g mqtt
+Para mandar un mensaje debemos usar:
+mqtt pub -t 'agent/message' -h localhost -m 'Aca va el mensaje'

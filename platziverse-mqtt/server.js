@@ -20,7 +20,43 @@ const settings = {
 // instanciamos el servidor
 const server = new mosca.Server(settings); // es un eventEmitter (agregamos funcionalidades cuando el servidor me lance eventos)
 
+// como recibiremos los distintos eventos a la red (cliente conectandose o desconectandose, publicando mensajes en el servidor, etc)
+server.on("clientConnected", client => {
+  // evento de cliente que se conecta al servidor
+  debug(`Cliente conectado con id: ${client.id}`); // id que autogenera mqtt
+});
+
+server.on("clientDisconnected", client => {
+  // evento de cliente que se desconecta del servidor
+  debug(`Cliente desconectado con id: ${client.id}`); // id que autogenera mqtt
+});
+
+server.on("published", (packet, client) => {
+  // mensaje publicado dado un paquete y un cliente
+  debug(`Recibido por el cliente de id: ${packet.topic}`); // topic es el tipo el mensaje (agentConnected, agentDisconnected o agentMessage)
+  debug(`Informacion que nos ha llegado: ${packet.payload}`); // payload es el contenido
+});
+
 server.on("ready", () => {
   // este evento es lanzado cuando el servidor este listo e inicializado
   console.log(`${chalk.green("[platziverse-mqtt]")} server corriendo`);
 });
+
+/*
+ * como trabajamos con emisores de eventos (eventEmitter) debemos tener en cuenta que tenemos que
+ * agregar un manejador de errores por si el servidor responde asi, por lo tanto creamos un manejador
+ * de errores fatales
+ */
+server.on("error", handleFatalError);
+
+function handleFatalError(err) {
+  console.error(`${chalk.red("[fatal error]")} ${err.message}`);
+  console.error(err.stack);
+  process.exit(1); // tiramos el servidor cerrando el proceso
+}
+
+// cuando tenemos un excepcion que no fue manejada (pasa a nivel del proceso) lo debemos manejar...
+process.on("uncaughtException", handleFatalError);
+
+// lo mismo para las promesas
+process.on("unhandledRejection", handleFatalError);
