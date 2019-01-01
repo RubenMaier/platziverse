@@ -26,8 +26,8 @@ async function run () {
     hostname: 'test',
     pid: 1,
     connected: true
-  }).catch(manejoDeError) 
-  
+  }).catch(manejoDeError)
+
   await Agent.createOrUpdate({
     uuid: 'rrr',
     name: 'ruben',
@@ -55,7 +55,7 @@ async function run () {
   }).catch(manejoDeError)
 
   console.log('creamos una CPU')
-  
+
   await Metric.create('rrr', {
     type: 'CPU',
     value: '3'

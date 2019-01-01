@@ -25,7 +25,7 @@ function findByAgentUuid (uuid) {
   return metrics.filter(m => m.agent ? m.agent.uuid === uuid : false).map(m => {
     const clone = Object.assign({}, m)
 
-    //delete clone.agent
+    // delete clone.agent
 
     return clone
   })
@@ -35,11 +35,11 @@ function findByTypeAgentUuid (type, uuid) {
   return metrics.filter(m => m.type === type && (m.agent ? m.agent.uuid === uuid : false)).map(m => {
     const clone = Object.assign({}, m)
 
-    //delete clone.agentId
-    //delete clone.agent
+    // delete clone.agentId
+    // delete clone.agent
 
     return clone
-  }).sort(sortBy('createdAt'))//.reverse()
+  }).sort(sortBy('createdAt'))// .reverse()
 }
 
 function sortBy (property) {
