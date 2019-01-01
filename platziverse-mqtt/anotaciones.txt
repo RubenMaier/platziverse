@@ -4,3 +4,9 @@ Instalamos mqtt con el comando:
 npm install -g mqtt
 Para mandar un mensaje debemos usar:
 mqtt pub -t 'agent/message' -h localhost -m 'Aca va el mensaje'
+
+# modulo 6
+## video 4
+A partir de ahora vamos a intentar integrar este modulo con el de DB
+podemos referenciar este modulo desde npm, github, o como quereamos, en este caso vamos a referenciarlo de manera local
+para eso usamos el patron de monorepo, añadimos platziverse-db al package.json de platziverse-mqtt

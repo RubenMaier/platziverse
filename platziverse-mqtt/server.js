@@ -4,6 +4,7 @@ const debug = require("debug")("platziverse:mqtt");
 const mosca = require("mosca"); // para crear el servidor
 const redis = require("redis");
 const chalk = require("chalk"); // para tener colores en la terminal
+const db = require("platziverse-db");
 
 const backend = {
   type: "redis",
@@ -16,6 +17,18 @@ const settings = {
   port: 1883, // puerto donde correra el servidor mqtt
   backend // informacion del backend
 };
+
+const config = {
+  database: process.env.DB_NAME || "platziverse",
+  username: process.env.DB_USER || "platzi",
+  password: process.env.DB_PASS || "platzi",
+  host: process.env.DB_HOST || "localhost",
+  dialect: "postgres",
+  logging: s => debug(s)
+};
+
+// servicios que por ahora estaran indefinidos
+let Agent, Metric;
 
 // instanciamos el servidor
 const server = new mosca.Server(settings); // es un eventEmitter (agregamos funcionalidades cuando el servidor me lance eventos)
@@ -37,7 +50,10 @@ server.on("published", (packet, client) => {
   debug(`Informacion que nos ha llegado: ${packet.payload}`); // payload es el contenido
 });
 
-server.on("ready", () => {
+server.on("ready", async () => {
+  const services = await db(config).catch(handleFatalError);
+  Agent = services.Agent;
+  Metric = services.Metric;
   // este evento es lanzado cuando el servidor este listo e inicializado
   console.log(`${chalk.green("[platziverse-mqtt]")} server corriendo`);
 });
