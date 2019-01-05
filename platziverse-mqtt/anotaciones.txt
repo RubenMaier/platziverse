@@ -14,3 +14,9 @@ para eso usamos el patron de monorepo, añadimos platziverse-db al package.json 
 #modulo 6
 ## video 5
 el comando "redis-cli" me levanta redis en windows 10
+
+#modulo 6
+## video 7
+probamos agregar un agente con una metrica por mqtt con el siguiente comando:
+mqtt pub -t 'agent/message' -m '{"agent": {"uuid": "jjj", "name": "test", "username": "platzi", "hostname": "platziargentina", "pid": 10}, "metrics": [{"type": "memoria", "value": "1001"}, {"type": "temp", "value": "33"}]}'
+para windows ver comentarios del video y hay un ejemplo

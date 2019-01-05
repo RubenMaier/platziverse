@@ -123,18 +123,12 @@ server.on('published', async (packet, client) => {
             })
           })
         }
-        // almacenamos las metricas
-        for (let metric of payload.metrics) {
-          // itero sobre el arreglo y for of me soporta async await
-          let m // almacenamos una metrica
-          try {
-            // garantizamos que la metrica sea efectivamente creada
-            m = await Metric.create(agent.uuid, metric)
-          } catch (e) {
-            // si tenemos un error la ignoramos
-            return handleError(e)
-          }
-          debug(`La metrica ${m.id} fue almacenada en el agente ${agent.uuid}`)
+        // almacenamos las metricas AHORA EN PARALELO
+        try {
+          await Promise.all(payload.metrics.map(payloadMetric => Metric.create(agent.uuid, payloadMetric)))
+        } catch (e) {
+          // si tenemos un error la ignoramos
+          return handleError(e)
         }
       }
       break
