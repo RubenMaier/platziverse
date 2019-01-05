@@ -1,0 +1,19 @@
+{
+  "name": "platziverse-agent",
+  "version": "1.0.0",
+  "description": "Plataforma de IoT simple - Agent",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RubenMaier/platziverse.git"
+  },
+  "author": "Ruben Maier Enzler",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RubenMaier/platziverse/issues"
+  },
+  "homepage": "https://github.com/RubenMaier/platziverse#readme"
+}
