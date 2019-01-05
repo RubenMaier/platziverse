@@ -20,7 +20,8 @@ const settings = {
   backend // informacion del backend
 }
 
-const config = { // vuelvo al modelo clasico sin exportar de manera loca asi termino con el curso y despues veo que onda
+const config = {
+  // vuelvo al modelo clasico sin exportar de manera loca asi termino con el curso y despues veo que onda
   database: process.env.DB_NAME || 'platziverse',
   username: process.env.DB_USER || 'platzi',
   password: process.env.DB_PASS || 'platzi',
@@ -38,6 +39,14 @@ let Agent, Metric
 // creamos una referencia de todos los agentes que tenemos conectados
 const clients = new Map()
 
+server.on('ready', async () => {
+  const services = await db(config).catch(handleFatalError)
+  Agent = services.Agent
+  Metric = services.Metric
+  // este evento es lanzado cuando el servidor este listo e inicializado
+  console.log(`${chalk.green('[platziverse-mqtt]')} server corriendo`)
+})
+
 // como recibiremos los distintos eventos a la red (cliente conectandose o desconectandose, publicando mensajes en el servidor, etc)
 server.on('clientConnected', client => {
   // evento de cliente que se conecta al servidor
@@ -48,6 +57,27 @@ server.on('clientConnected', client => {
 server.on('clientDisconnected', async client => {
   // evento de cliente que se desconecta del servidor
   debug(`Cliente desconectado con id: ${client.id} TTTTTTTTTTTT`) // id que autogenera mqtt
+  const agent = clients.get(client.id) // obtenemos el agente del mapa
+  if (agent) {
+    // si el agente existe y esta desconectado...
+    agent.connected = false
+    try {
+      await Agent.createOrUpdate(agent) // actualiza siempre porque si el objeto esta en el objeto de clients entonces esta en la DB
+    } catch (e) {
+      return handleError(e)
+    }
+    clients.delete(client.id) // como se desconecto ya no lo necesitamos en esta lista, asi que lo quitamos
+    server.publish({
+      // notificamos el evento de desconexion
+      topic: 'agent/disconnect',
+      payload: JSON.stringify({
+        agent: {
+          uuid: agent.uuid
+        }
+      })
+    })
+    debug(`Cliente con id ${client.id} associado al agente con id ${agent.uuid} fue marcado como desconectado`)
+  }
 })
 
 server.on('published', async (packet, client) => {
@@ -56,6 +86,7 @@ server.on('published', async (packet, client) => {
   switch (packet.topic) {
     case 'agent/connected':
       debug(`${chalk.white(`Recibido por el cliente de id: ${packet.topic} ASD1`)}`)
+      break
     case 'agent/disconnected':
       debug(`${chalk.white(`Recibido por el cliente de id: ${packet.topic} ASD1`)}`)
       debug(`Informacion que nos ha llegado: ${packet.payload} ASD2`) // payload es el contenido
@@ -93,11 +124,14 @@ server.on('published', async (packet, client) => {
           })
         }
         // almacenamos las metricas
-        for (let metric of payload.metrics) { // itero sobre el arreglo y for of me soporta async await
+        for (let metric of payload.metrics) {
+          // itero sobre el arreglo y for of me soporta async await
           let m // almacenamos una metrica
-          try { // garantizamos que la metrica sea efectivamente creada
+          try {
+            // garantizamos que la metrica sea efectivamente creada
             m = await Metric.create(agent.uuid, metric)
-          } catch (e) { // si tenemos un error la ignoramos
+          } catch (e) {
+            // si tenemos un error la ignoramos
             return handleError(e)
           }
           debug(`La metrica ${m.id} fue almacenada en el agente ${agent.uuid}`)
@@ -105,17 +139,11 @@ server.on('published', async (packet, client) => {
       }
       break
     default:
-      debug(`${chalk.gray(`Recibido por el cliente de id: ${packet.topic} ASD1`)}`)
+      debug(
+        `${chalk.gray(`Recibido por el cliente de id: ${packet.topic} ASD1`)}`
+      )
       break
   }
-})
-
-server.on('ready', async () => {
-  const services = await db(config).catch(handleFatalError)
-  Agent = services.Agent
-  Metric = services.Metric
-  // este evento es lanzado cuando el servidor este listo e inicializado
-  console.log(`${chalk.green('[platziverse-mqtt]')} server corriendo`)
 })
 
 /*
@@ -125,12 +153,12 @@ server.on('ready', async () => {
  */
 server.on('error', handleFatalError)
 
-function handleFatalError (err) {
+function handleFatalError(err) {
   console.error(`${chalk.red('[fatal error]')} ${err.message}`)
   console.error(err.stack)
   process.exit(1) // tiramos el servidor cerrando el proceso
 }
-function handleError (err) {
+function handleError(err) {
   console.error(`${chalk.red('[error]')} ${err.message}`)
   console.error(err.stack) // no mata al proceso
 }
