@@ -12,6 +12,15 @@ const agent = new PlatziverseAgent({
 
 agent.connect() // me conecto
 
+// estos eventos son unicamente de este agente
+agent.on('connected')
+agent.on('disconnected')
+agent.on('massage')
+
+// estos eventos son de otros agentes que estan enviando a mi servidor mqtt
+// estos eventos los emito solo cuando mi uuid es distnto al de otro uuid (es decir, no son mis mensajes)
+agent.on('agent/connected')
+agent.on('agent/discconnected')
 agent.on('agent/message', payload => { // leo eventos de ese agente, ejemplo si recibo un agent message
     console.log(payload)
 })
@@ -45,3 +54,10 @@ y ahora me implimiria en pantalla el mensaje cada 2 segundos y con
 agent.disconnect()
 
 dejaria de repetir el mensaje
+
+# otros
+
+Un agente se conecta al cliente mqtt para publicar metricas o recibir la informacion de otros agentes que reporten al servidor mqtt
+Al agente lo podemos trabajar de las siguientes forma:
+- solo lectura: no necesitamos pasarle ninguna opcion de inicializacion
+- modo escritura: le pasamos el nombre de la aplicacion, del usuario, y cualquier otra info necesaria para informar metricas
