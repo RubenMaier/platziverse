@@ -15,7 +15,7 @@ const opcionesDefaults = {
   username: 'platzi',
   interval: 5000, // 5 segundos
   mqtt: { // host de comunicacion 
-    host: 'mqtt://localhost' // en este caso se encuentra local
+    host: 'mqtt://localhost' // en este caso se encuentra local (aca se encuentra el servidor mqtt)
   }
 }
 
@@ -42,13 +42,13 @@ class PlatziverseAgent extends EventEmitter {
   connect() {
     if (!this._started) { // lo hace algo si el timer no esta conectado o activado
       const opciones = this._opciones // solo para no andar escribiendo tanto
-      this._cliente = mqtt.connect(opciones.mqtt.host)
+      this._cliente = mqtt.connect(opciones.mqtt.host) // nos conectamos al cliente
       const cliente = this._cliente
       // nos suscribimos a cada uno de los topicos
       cliente.subscribe('agent/message')
       cliente.subscribe('agent/connect')
       cliente.subscribe('agent/disconnect') // este mismo cliente nos notificara cuando recibamos mensajes del servidor mqtt
-      cliente.on('connect', () => { // cuando este cliente se conecte ejecutamos el siguiente bloque
+      cliente.on('connect', () => { // el cliente mqtt tiene un evento de connect y cuando nos conectemos a él ejecutamos lo siguiente..
         // solo emito esto si estoy conectado a mi servidor mqtt
         this._started = true // luego de iniciar el timer, efectivamente marcamos que esto si inicializo
         this._agenteID = uuid.v4() // creamos un id unico para nuestro agente ayudandonos de una libreria llamada 'uuid'
@@ -81,6 +81,7 @@ class PlatziverseAgent extends EventEmitter {
           }
         }, opciones.interval) // El tiempo lo tomamos de las opciones que nos pasan
       })
+      // cuando este cliente reciba un mensaje...
       cliente.on('message', (topic, payload) => { // vemos si redistibuirlo o no
         payload = parsePayload(payload) // convertimos de string a JSON object
         // retransmito el mensaje, o no, dependiendo de ciertas condiciones
