@@ -50,11 +50,11 @@ class PlatziverseAgent extends EventEmitter {
       cliente.subscribe('agent/disconnect') // este mismo cliente nos notificara cuando recibamos mensajes del servidor mqtt
       cliente.on('connect', () => { // el cliente mqtt tiene un evento de connect y cuando nos conectemos a él ejecutamos lo siguiente..
         // solo emito esto si estoy conectado a mi servidor mqtt
-        this._started = true // luego de iniciar el timer, efectivamente marcamos que esto si inicializo
         this._agenteID = uuid.v4() // creamos un id unico para nuestro agente ayudandonos de una libreria llamada 'uuid'
         this.emit('connected', this._agenteID) // esto se transmite solo en este agente, no al servidor mqtt, ojo
         this._timer = setInterval(async () => { // creamos el intervalo
-          if(this._metricas.size > 0) { // si tengo al menos una metrica...
+          this._started = true // luego de iniciar el timer, efectivamente marcamos que esto si inicializo
+          if (this._metricas.size > 0) { // si tengo al menos una metrica...
             let mensaje = {
               agent: {
                 uuid: this._agenteID,
@@ -66,8 +66,8 @@ class PlatziverseAgent extends EventEmitter {
               metrics: [], // enviamos las metricas como array vacio
               timestamp: new Date().getTime()
             }
-            for(let [ metrica, funcion] of this._metricas) { // iteramos todas las metricas que tenemos en el mapa de metricas (hacemos destructuring)
-              if(funcion.length == 1) { // si tiene un argumento es porque es callback
+            for (let [metrica, funcion] of this._metricas) { // iteramos todas las metricas que tenemos en el mapa de metricas (hacemos destructuring)
+              if (funcion.length == 1) { // si tiene un argumento es porque es callback
                 funcion = util.promisify(funcion) // convertimos funciones de callback a funciones de promesa (a partir de node 8)
               }
               mensaje.metrics.push({
@@ -77,7 +77,7 @@ class PlatziverseAgent extends EventEmitter {
             }
             debug('Enviando', mensaje)
             cliente.publish('agent/message', JSON.stringify(mensaje))
-            this.emit('mesagge', mensaje)
+            this.emit('message', mensaje)
           }
         }, opciones.interval) // El tiempo lo tomamos de las opciones que nos pasan
       })
@@ -90,7 +90,7 @@ class PlatziverseAgent extends EventEmitter {
           case 'agent/connected':
           case 'agent/disconnected':
           case 'agent/message':
-            broadcast = payload && payload.agent && payload.agent.uuid != this._agenteID // asi me aseguro de no retransmitir mis propios mensajes
+            broadcast = payload && payload.agent && payload.agent.uuid !== this._agenteID // asi me aseguro de no retransmitir mis propios mensajes
             break
         }
         if (broadcast) {
@@ -105,7 +105,7 @@ class PlatziverseAgent extends EventEmitter {
     if (this._started) { // nos desconectamo solo si el servicio esta inicializado
       clearInterval(this._timer) // paramos el intervalo con la referencia
       this._started = false // marcamos el estado como off
-      this.emit('disconnect') // emitimos el evento de desconexion
+      this.emit('disconnected', this._agenteID) // emitimos el evento de desconexion
       this._cliente.end()
     }
   }
