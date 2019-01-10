@@ -7,6 +7,15 @@ CREATE DATABASE platziverse;
 GRANT ALL PRIVILEGES ON DATABASE platziverse TO platzi;
 \quit
 
+
+EN windows
+
+psql -U postgres
+CREATE ROLE platzi WITH LOGIN PASSWORD 'platzi';
+CREATE DATABASE platziverse;
+GRANT ALL PRIVILEGES ON DATABASE platziverse TO platzi;
+\quit
+
 --------------------
 
 Se debe instalar:

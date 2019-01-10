@@ -1,12 +1,13 @@
 'use strict'
 
-const http = require('http')
-const express = require('express') // creara una funcion que se ejecutara cada vez que se genere una peticion a nuestro servidor
-const chalk = require('chalk')
 const debug = require('debug')('platziverse:api')
+const http = require('http')
+const chalk = require('chalk')
+const express = require('express') // creara una funcion que se ejecutara cada vez que se genere una peticion a nuestro servidor
 
 const api = require('./api')
 
+const puerto = process.env.POST || 3000
 const app = express()
 const server = http.createServer(app)
 
@@ -15,23 +16,22 @@ app.use('/api', api)
 
 // middleware que maneja errores
 app.use((err, req, res, next) => {
-  debug(`Error: ${err.mensaje}`)
-  if (err.mensaje.match(/no encontrado/)) {
-    res.status(404).send({ error: err.mensaje }) // en este caso el codigo que le enviamos le indica que no se encontro algo
+  debug(`Error: ${err.message}`)
+  if (err.message.match(/no encontrado/)) {
+    return res.status(404).send({ error: err.message }) // en este caso el codigo que le enviamos le indica que no se encontro algo
   }
-  res.status(500).send({ error: err.mensaje }) // le comunico server error
+  return res.status(500).send({ error: err.message }) // le comunico server error
 })
 
-function handlerFatalError (err) {
-  console.error(`${chalk.red('[fatal error]')} ${err.ensaje}`)
+function handleFatalError (err) {
+  console.error(`${chalk.red('[fatal error]')} ${err.message}`)
   console.error(err.stack) // muestro el stack traise
   process.exit(1) // matamos el proceso, el uno es el "exit could" que me indica que se termino con error
 }
 
-process.on('uncaughtException', handlerFatalError)
-process.on('unhandledRejection', handlerFatalError)
+process.on('uncaughtException', handleFatalError)
+process.on('unhandledRejection', handleFatalError)
 
-const puerto = process.env.POST || 3000
 server.listen(puerto, () => {
   console.log(`${chalk.green('[platziverse-api')} server escuchando en el puerto ${puerto}`)
 })

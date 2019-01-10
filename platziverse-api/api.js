@@ -14,7 +14,8 @@ api.get('/agent/:uuid', (req, res, next) => {
   const { uuid } = req.params
   if (uuid !== 'yyy') {
     // ejecuto la funcion next de esta ruta
-    return next(new Error('Agente no encontrado'))
+    const err = new Error('Agente no encontrado')
+    return next(err)
   }
   res.send({ uuid })
 })

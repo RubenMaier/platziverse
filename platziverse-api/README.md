@@ -9,3 +9,4 @@ otra es instalar httpie.org, en este caso usamos este, y se ejecuta lo siguiente
 
 ## video 3
 corremos la consulta con el id yyy valido y el id yyyz invalido, para ver el manejo de errores
+http http://localhost:3000/api/agent/yyy
