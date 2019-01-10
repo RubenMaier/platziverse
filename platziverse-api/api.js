@@ -10,8 +10,12 @@ api.get('/agents', (req, res) => {
   res.send({}) // el método send me permite enviarle al usuario un objeto que le llega en formato json
 })
 
-api.get('/agent/:uuid', (req, res) => {
+api.get('/agent/:uuid', (req, res, next) => {
   const { uuid } = req.params
+  if (uuid !== 'yyy') {
+    // ejecuto la funcion next de esta ruta
+    return next(new Error('Agente no encontrado'))
+  }
   res.send({ uuid })
 })
 
