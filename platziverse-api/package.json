@@ -6,6 +6,7 @@
   "main": "server.js",
   "scripts": {
     "lint": "standard",
+    "lint-fix": "standard --fix",
     "start-dev-mac": "DEBUG=platziverse:* nodemon server.js",
     "start-dev-win": "SET DEBUG=platziverse:* && nodemon server.js",
     "start-mac": "DEBUG=production node server.js",
