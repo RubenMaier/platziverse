@@ -1,0 +1,32 @@
+{
+  "name": "platziverse-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Un simple plataforma de IoT - API",
+  "main": "server.js",
+  "scripts": {
+    "lint": "standard",
+    "start-dev-mac": "DEBUG=platziverse:* nodemon server.js",
+    "start-dev-win": "SET DEBUG=platziverse:* && nodemon server.js",
+    "start-mac": "DEBUG=production node server.js",
+    "start-win": "SET DEBUG=prtoduction:* && node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RubenMaier/platziverse.git"
+  },
+  "author": "Ruben Maier Enzler",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RubenMaier/platziverse/issues"
+  },
+  "homepage": "https://github.com/RubenMaier/platziverse#readme",
+  "devDependencies": {
+    "nodemon": "^1.18.9",
+    "standard": "^12.0.1"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "debug": "^4.1.1"
+  }
+}
