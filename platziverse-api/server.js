@@ -23,15 +23,19 @@ app.use((err, req, res, next) => {
   return res.status(500).send({ error: err.message }) // le comunico server error
 })
 
-function handleFatalError (err) {
+function handleFatalError(err) {
   console.error(`${chalk.red('[fatal error]')} ${err.message}`)
   console.error(err.stack) // muestro el stack traise
   process.exit(1) // matamos el proceso, el uno es el "exit could" que me indica que se termino con error
 }
 
-process.on('uncaughtException', handleFatalError)
-process.on('unhandledRejection', handleFatalError)
+if (!module.parent) { // se ejecuta si este archivo no es requerido por alguien mas
+  process.on('uncaughtException', handleFatalError)
+  process.on('unhandledRejection', handleFatalError)
 
-server.listen(puerto, () => {
-  console.log(`${chalk.green('[platziverse-api')} server escuchando en el puerto ${puerto}`)
-})
+  server.listen(puerto, () => {
+    console.log(`${chalk.green('[platziverse-api')} server escuchando en el puerto ${puerto}`)
+  })
+}
+
+module.exports = server

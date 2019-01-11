@@ -7,10 +7,12 @@
   "scripts": {
     "lint": "standard",
     "lint-fix": "standard --fix",
+    "test-mac": "DEBUG=platziverse:* ava tests/ --verbose",
+    "test-win": "SET DEBUG=platziverse:* && ava tests/ --verbose",
     "start-dev-mac": "DEBUG=platziverse:* nodemon server.js",
     "start-dev-win": "SET DEBUG=platziverse:* && nodemon server.js",
     "start-mac": "DEBUG=production node server.js",
-    "start-win": "SET DEBUG=prtoduction:* && node server.js"
+    "start-win": "SET DEBUG=production:* && node server.js"
   },
   "repository": {
     "type": "git",
@@ -23,8 +25,10 @@
   },
   "homepage": "https://github.com/RubenMaier/platziverse#readme",
   "devDependencies": {
+    "ava": "^1.0.1",
     "nodemon": "^1.18.9",
-    "standard": "^12.0.1"
+    "standard": "^12.0.1",
+    "supertest": "^3.3.0"
   },
   "dependencies": {
     "chalk": "^2.4.2",
