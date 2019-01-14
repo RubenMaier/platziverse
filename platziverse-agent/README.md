@@ -72,7 +72,7 @@ const agent = new PlatziverseAgent({ interval: 2000 })
 agent.on('agent/message', console.log)
 agent.connect()
 
-y ahora me implimiria en pantalla el mensaje cada 2 segundos y con
+y ahora me imprimirá en pantalla el mensaje cada 2 segundos y con
 
 agent.disconnect()
 

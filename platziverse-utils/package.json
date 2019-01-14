@@ -1,8 +1,8 @@
 {
-  "name": "platziverse-agent",
+  "name": "platziverse-utils",
   "version": "1.0.0",
   "private": true,
-  "description": "Plataforma de IoT simple - Agent",
+  "description": "Una simple plataforma de IoT - Utils",
   "main": "index.js",
   "scripts": {
     "lint": "standard",
@@ -18,11 +18,7 @@
     "url": "https://github.com/RubenMaier/platziverse/issues"
   },
   "homepage": "https://github.com/RubenMaier/platziverse#readme",
-  "dependencies": {
-    "debug": "^4.1.1",
-    "defaults": "^1.0.3",
-    "mqtt": "^2.18.8",
-    "uuid": "^3.3.2",
-    "platziverse-utils": "file:../platziverse-utils"
+  "devDependencies": {
+    "standard": "^11.0.1"
   }
 }

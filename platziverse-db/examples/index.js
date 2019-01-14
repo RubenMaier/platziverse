@@ -4,6 +4,7 @@
 // "node examples/index.js"
 
 const db = require('../')
+// const { crearConfig } = require('platziverse-utils')
 
 async function run () {
   const config = { // defino el objeto de configuracion (igual al del setup)

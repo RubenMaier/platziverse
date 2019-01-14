@@ -4,9 +4,9 @@ const debug = require('debug')('platziverse:mqtt')
 const mosca = require('mosca') // para crear el servidor
 const redis = require('redis')
 const chalk = require('chalk') // para tener colores en la terminal
-const db = require('./../platziverse-db')
+const db = require('platziverse-db')
 
-const { parsePayload } = require('./utils') // somo me extrae la funcion parsePayload de la libreria utilidades
+const { parsePayload, crearConfig } = require('platziverse-utils') // somo me extrae la funcion parsePayload de la libreria utilidades
 
 const backend = {
   type: 'redis',
@@ -20,15 +20,7 @@ const settings = {
   backend // informacion del backend
 }
 
-const config = {
-  // vuelvo al modelo clasico sin exportar de manera loca asi termino con el curso y despues veo que onda
-  database: process.env.DB_NAME || 'platziverse',
-  username: process.env.DB_USER || 'platzi',
-  password: process.env.DB_PASS || 'platzi',
-  host: process.env.DB_HOST || 'localhost',
-  dialect: 'postgres',
-  logging: s => debug(s)
-}
+const config = crearConfig(false, debug)
 
 // instanciamos el servidor
 const server = new mosca.Server(settings) // es un eventEmitter (agregamos funcionalidades cuando el servidor me lance eventos)
@@ -147,12 +139,12 @@ server.on('published', async (packet, client) => {
  */
 server.on('error', handleFatalError)
 
-function handleFatalError(err) {
+function handleFatalError (err) {
   console.error(`${chalk.red('[fatal error]')} ${err.message}`)
   console.error(err.stack)
   process.exit(1) // tiramos el servidor cerrando el proceso
 }
-function handleError(err) {
+function handleError (err) {
   console.error(`${chalk.red('[error]')} ${err.message}`)
   console.error(err.stack) // no mata al proceso
 }

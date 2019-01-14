@@ -1,10 +1,12 @@
 {
   "name": "platziverse-db",
   "version": "1.0.0",
+  "private": true,
   "description": "Simple plataforma de IOT - Modulo DB",
   "main": "index.js",
   "scripts": {
     "lint": "standard",
+    "lint-fix": "standard --fix",
     "setup-mac": "DEBUG=platziverse:* node setup.js",
     "setup-win": "SET DEBUG=platziverse:* && node setup.js",
     "test-mac": "DEBUG=platziverse:* nyc --reporter=lcov ava tests/ --verbose",
@@ -28,7 +30,8 @@
     "npm": "^6.4.1",
     "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
-    "sequelize": "^4.38.0"
+    "sequelize": "^4.38.0",
+    "platziverse-utils": "file:../platziverse-utils"
   },
   "devDependencies": {
     "ava": "^0.25.0",
