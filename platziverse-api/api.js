@@ -29,29 +29,62 @@ api.use('*', async (req, res, next) => {
   next()
 })
 
-api.get('/agents', (req, res) => {
-  debug('Una consulta vino de /agents')
-  res.send({}) // el método send me permite enviarle al usuario un objeto que le llega en formato json
+api.get('/agents', async (req, res, next) => {
+  debug('consulta de /agents')
+  let agents = []
+  try {
+    agents = await Agent.findConnected()
+  } catch (e) {
+    return next(e)
+  }
+  res.send(agents) // el método send me permite enviarle al usuario un objeto que le llega en formato json
 })
 
-api.get('/agent/:uuid', (req, res, next) => {
+api.get('/agent/:uuid', async (req, res, next) => {
   const { uuid } = req.params
-  if (uuid !== 'yyy') {
+  debug(`consulta de /agent/${uuid}`)
+  let agent
+  try {
+    agent = await Agent.findByUuid(uuid)
+  } catch (e) {
+    return next(e)
+  }
+  if (!agent) {
     // ejecuto la funcion next de esta ruta
-    const err = new Error('Agente no encontrado')
+    const err = new Error(`Agente no encontrado con la uuid ${uuid}`)
     return next(err)
   }
-  res.send({ uuid })
+  res.send(agent)
 })
 
-api.get('/metrics/:uuid', (req, res) => {
+api.get('/metrics/:uuid', async (req, res, next) => {
   const { uuid } = req.params
-  res.send({ uuid })
+  debug(`consulta de /metrics/${uuid}`)
+  let metrics = []
+  try {
+    metrics = await Metric.findByAgentUuid(uuid)
+  } catch (e) {
+    return next(e)
+  }
+  if (!metrics || metrics.length === 0) {
+    return next(new Error(`No se encontraron metricas para el agente con uuid ${uuid}`))
+  }
+  res.send(metrics)
 })
 
-api.get('/metrics/:uuid/:tipo', (req, res) => {
+api.get('/metrics/:uuid/:tipo', async (req, res, next) => {
   const { uuid, tipo } = req.params
-  res.send({ uuid, tipo })
+  debug(`consulta de /metrics/${uuid}/${tipo}`)
+  let metrics = []
+  try {
+    metrics = await Metric.findByTypeAgentUuid(tipo, uuid)
+  } catch (e) {
+    return next(e)
+  }
+  if (!metrics || metrics.length === 0) {
+    return next(new Error(`No se encontraron metricas de tipo ${tipo} para el agente con uuid ${uuid}`))
+  }
+  res.send(metrics)
 })
 
 module.exports = api
