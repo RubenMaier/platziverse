@@ -1,9 +1,7 @@
 'use strict'
 
 const agentFixtures = require('./agent')
-const utils = require('../../utils/extend')
-
-const extend = utils.extend
+const { extend } = require('platziverse-utils')
 
 const metric = {
   id: 1,

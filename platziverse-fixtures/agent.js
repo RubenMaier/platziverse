@@ -1,8 +1,6 @@
 'use strict'
 
-const utils = require('../../utils/extend')
-
-const extend = utils.extend
+const { extend } = require('platziverse-utils')
 
 const agent = { // creamos un objeto de un agente
   id: 1,

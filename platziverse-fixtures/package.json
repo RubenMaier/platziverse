@@ -1,0 +1,21 @@
+{
+  "name": "platziverse-fixtures",
+  "version": "1.0.0",
+  "description": "Simple plataforma de IoT - Fixtures for tests",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RubenMaier/platziverse.git"
+  },
+  "author": "Ruben Maier Enzler <ruben.maier@hotmail.com> (https://www.linkedin.com/in/ruben-maier-36ba1985)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RubenMaier/platziverse/issues"
+  },
+  "homepage": "https://github.com/RubenMaier/platziverse#readme",
+  "dependencies": {
+    "platziverse-utils": "file:../platziverse-utils"
+  }
+}

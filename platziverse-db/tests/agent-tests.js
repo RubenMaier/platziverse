@@ -20,7 +20,7 @@ const sinon = require('sinon')
 const proxyquire = require('proxyquire')
 
 // fixtures -> es un set de datos falsos (set de datos de prueba) con los que trabajaremos
-const agentFixtures = require('./fixtures/agent')
+const agentFixtures = require('platziverse-fixtures/agent')
 
 // no queremos una conexion real a la DB
 // queremos una DB de prueba...
