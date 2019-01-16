@@ -4,9 +4,10 @@ const debugDB = require('debug')('platziverse:api:db')
 const debug = require('debug')('platziverse:api:routes')
 const express = require('express')
 const db = require('platziverse-db')
-const { crearConfig } = require('platziverse-utils')
+const {crearConfig} = require('platziverse-utils')
 const asyncify = require('express-asyncify')
 const auth = require('express-jwt') // middleware para autenticar rutas (aseguramos ruta por ruta)
+const {secretKey} = require('platziverse-utils')
 
 const api = asyncify(express.Router()) // instancia de router en express
 // tuve que llamar a las rutas con asyncify porque node no soporta middlewares con async-await todavia, y esta herramienta
@@ -15,10 +16,6 @@ const api = asyncify(express.Router()) // instancia de router en express
 let servicios, Agent, Metric
 
 const config = crearConfig(false, debugDB)
-
-config.auth = {
-  secret: process.env.SECRET || 'platzi'
-}
 
 api.use('*', async (req, res, next) => {
   if (!servicios) {
@@ -35,7 +32,7 @@ api.use('*', async (req, res, next) => {
 })
 
 // auth tiene como argumento la llave secreta con la que son encriptados los jwt
-api.get('/agents', auth(config.auth), async (req, res, next) => { // la ruta puede tener asociado tantos middleware como gustemos separados por como ANTES del handler que en este caso es esa funcion async
+api.get('/agents', auth(secretKey), async (req, res, next) => { // la ruta puede tener asociado tantos middleware como gustemos separados por como ANTES del handler que en este caso es esa funcion async
   debug('consulta de /agents')
   const { user } = req
   if(!user || !user.username) {

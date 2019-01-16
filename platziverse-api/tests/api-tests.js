@@ -4,14 +4,18 @@ const test = require('ava')
 const request = require('supertest') // es como una herramienta para hacer petciones http con aserciones
 const sinon = require('sinon')
 const proxyquire = require('proxyquire')
-
+const auth = require('../auth')
 const AgentFixtures = require('platziverse-fixtures/agent')
+const util = require('util') // para hacer el promise file
+const {secretKey} = require('platziverse-utils')
 
 let sandbox = null
 let server = null // aca vamos a hacer el stub
 let dbStub = null
 let AgentStub = {}
 let MetricStub = {}
+const firmar = util.promisify(auth.firmar) // convertimos la funcion de firmado como una funcion asincrona
+let token = null
 
 test.beforeEach(async () => { // en este hook vamos a piratear el servidor
   sandbox = sinon.createSandbox()
@@ -23,6 +27,8 @@ test.beforeEach(async () => { // en este hook vamos a piratear el servidor
 
   AgentStub.findConnected = sandbox.stub()
   AgentStub.findConnected.returns(Promise.resolve(AgentFixtures.connected)) // cuando ejecute findConnected me va a devolver AgentFixtures.connected
+
+  token = await firmar({admin: true, username: 'platzi'}, secretKey.secret)
 
   const api = proxyquire('../api', {
     'platziverse-db': dbStub // cada vez que hagan un require de platziverse-db usted me debe retornar dbStub
@@ -40,6 +46,7 @@ test.afterEach(() => {
 test.serial.cb('/api/agents', t => {
   request(server) // aca le deberiamos pasar una instancia del servidor que vamos a utilizar
     .get('/api/agents') // ejecuto una peticion a la siguiente url
+    .set('Authorization', `Bearer ${token}`)
     .expect(200) // deberia devolverme 200
     .expect('Content-Type', /json/) // el contenido deberia ser un json
     .end((err, res) => { // aserciones encadenadas
@@ -51,6 +58,7 @@ test.serial.cb('/api/agents', t => {
     })
 }) // cb = callback, utilizamos supertest que trabaja con callback no con async-await
 
+test.serial.todo('/api/agents - cuando no esta autorizado')
 test.serial.todo('/api/agent/:uuid')
 test.serial.todo('/api/agent/:uuid - not found')
 
