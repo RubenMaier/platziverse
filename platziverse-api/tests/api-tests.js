@@ -7,7 +7,7 @@ const proxyquire = require('proxyquire')
 const auth = require('../auth')
 const AgentFixtures = require('platziverse-fixtures/agent')
 const util = require('util') // para hacer el promise file
-const {secretKey} = require('platziverse-utils')
+const { secretKey } = require('platziverse-utils')
 
 let sandbox = null
 let server = null // aca vamos a hacer el stub
@@ -28,7 +28,7 @@ test.beforeEach(async () => { // en este hook vamos a piratear el servidor
   AgentStub.findConnected = sandbox.stub()
   AgentStub.findConnected.returns(Promise.resolve(AgentFixtures.connected)) // cuando ejecute findConnected me va a devolver AgentFixtures.connected
 
-  token = await firmar({admin: true, username: 'platzi'}, secretKey.secret)
+  token = await firmar({ admin: true, username: 'platzi' }, secretKey.secret)
 
   const api = proxyquire('../api', {
     'platziverse-db': dbStub // cada vez que hagan un require de platziverse-db usted me debe retornar dbStub

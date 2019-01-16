@@ -1,5 +1,9 @@
 'use strict'
 
+const secretKey = {
+  secret: process.env.SECRET || 'platzi'
+}
+
 function parsePayload(payload) {
   // si el payload es un buffer...
   if (payload instanceof Buffer) {
@@ -40,5 +44,6 @@ function crearConfig(valor, debug) {
 module.exports = {
   crearConfig,
   parsePayload,
-  extend
+  extend,
+  secretKey
 }
