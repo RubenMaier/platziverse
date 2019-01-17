@@ -41,9 +41,38 @@ function crearConfig(valor, debug) {
   }
 }
 
+function pipe(EmiterFuente, EmiterTarget) { // pipe entre el agente y el socket.io 
+  if (!EmiterFuente || !EmiterTarget) {
+    throw TypeError('Por favor envia un EventEmitter como argumentos')
+  }
+
+  const emit = EmiterFuente.emit // creo que .emit y ._emit son dos formas de referenciar a lo mismo
+  // el posta era : const emit = EmiterFuente._emit = EmiterFuente.emit
+
+  /*
+    En la constante emit se obtiene el método original emit ya que este sera sobreescrito en el EmiterFuente.
+    
+    En el EmiterFuente sera sobreescrito para que al momento que se le invoque su metodo .emit con ciertos argumentos
+    tambien se emita el metodo .emit del objeto EmiterTarget con esos mismos argumentos.
+    El .emit del EmiterFuente es llamado puesot que EmiterFuente en este caso es el agent que es una instancia de la
+    clase PlatziverseAgent donde en diversos momento se invoca a this.emit(topic, payload) y entonces lo sobreescribimos 
+    para obtener esos argumentos y pasarlo mediante el método apply al contexto de target y de la constante emit y sean emitidos 
+    inmediatamente juntas. 
+    
+    Arguments es un objeto de javascript que recibe todos los argumentos de la función
+  */
+
+  EmiterFuente.emit = function () { // la redefinimos 
+    emit.apply(EmiterFuente, arguments) // ejecuta la funcion emit con los parametros "arguments" en forma matricial y la funcion tendra como su this al elemento EmiterFuente
+    EmiterTarget.emit.apply(EmiterTarget, arguments) // hacemos ejecutar tambien el del Target con los mismos argumentos para replicar
+    //return EmiterFuente
+  }
+}
+
 module.exports = {
   crearConfig,
   parsePayload,
   extend,
-  secretKey
+  secretKey,
+  pipe
 }

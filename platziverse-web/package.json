@@ -29,6 +29,8 @@
     "chalk": "^2.4.2",
     "debug": "^4.1.1",
     "express": "^4.16.4",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "platziverse-agent": "file:../platziverse-agent",
+    "platziverse-utils": "file:../platziverse-utils"
   }
 }

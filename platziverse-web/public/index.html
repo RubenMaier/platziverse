@@ -11,12 +11,18 @@
     <h1>Platziverse</h1>
     <script type="text/javascript">
         var socket = io()
+        
         socket.on('agent/message', function (payload) {
-            console.log(payload)
+            console.log('agent/message', payload)
         })
-        setTimeout(function () { // aca uso Ecmascript2015 
-            socket.emit('agent/message', 'hola viejo!')
-        }, 5000)
+        
+        socket.on('agent/connected', function (payload) {
+            console.log('agent/connected', payload)
+        })
+        
+        socket.on('agent/disconnected', function (payload) {
+            console.log('agent/disconnected', payload)
+        })
     </script>
 </body>
 </html>

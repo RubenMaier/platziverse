@@ -22,7 +22,10 @@
     "debug": "^4.1.1",
     "defaults": "^1.0.3",
     "mqtt": "^2.18.8",
-    "uuid": "^3.3.2",
-    "platziverse-utils": "file:../platziverse-utils"
+    "platziverse-utils": "file:../platziverse-utils",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "standard": "^12.0.1"
   }
 }

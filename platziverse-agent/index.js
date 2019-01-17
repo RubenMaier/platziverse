@@ -14,7 +14,7 @@ const opcionesDefaults = {
   name: 'untitled',
   username: 'platzi',
   interval: 5000, // 5 segundos
-  mqtt: { // host de comunicacion 
+  mqtt: { // host de comunicacion
     host: 'mqtt://localhost' // en este caso se encuentra local (aca se encuentra el servidor mqtt)
   }
 }
@@ -35,20 +35,18 @@ class PlatziverseAgent extends EventEmitter {
     this._metricas.set(tipo, funcion)
   }
 
-  removeMetric(type) {
+  removeMetric(tipo) {
     this._metricas.delete(tipo)
   }
 
   connect() {
     if (!this._started) { // lo hace algo si el timer no esta conectado o activado
-      const opciones = this._opciones // solo para no andar escribiendo tanto
-      this._cliente = mqtt.connect(opciones.mqtt.host) // nos conectamos al cliente
-      const cliente = this._cliente
+      this._cliente = mqtt.connect(this._opciones.mqtt.host) // nos conectamos al cliente
       // nos suscribimos a cada uno de los topicos
-      cliente.subscribe('agent/message')
-      cliente.subscribe('agent/connect')
-      cliente.subscribe('agent/disconnect') // este mismo cliente nos notificara cuando recibamos mensajes del servidor mqtt
-      cliente.on('connect', () => { // el cliente mqtt tiene un evento de connect y cuando nos conectemos a él ejecutamos lo siguiente..
+      this._cliente.subscribe('agent/message')
+      this._cliente.subscribe('agent/connected')
+      this._cliente.subscribe('agent/disconnected') // este mismo cliente nos notificara cuando recibamos mensajes del servidor mqtt
+      this._cliente.on('connect', () => { // el cliente mqtt tiene un evento de connect y cuando nos conectemos a él ejecutamos lo siguiente..
         // solo emito esto si estoy conectado a mi servidor mqtt
         this._agenteID = uuid.v4() // creamos un id unico para nuestro agente ayudandonos de una libreria llamada 'uuid'
         this.emit('connected', this._agenteID) // esto se transmite solo en este agente, no al servidor mqtt, ojo
@@ -58,8 +56,8 @@ class PlatziverseAgent extends EventEmitter {
             let mensaje = {
               agent: {
                 uuid: this._agenteID,
-                username: opciones.username,
-                name: opciones.name,
+                username: this._opciones.username,
+                name: this._opciones.name,
                 hostname: os.hostname() || 'localhost',
                 pid: process.pid
               },
@@ -67,7 +65,7 @@ class PlatziverseAgent extends EventEmitter {
               timestamp: new Date().getTime()
             }
             for (let [metrica, funcion] of this._metricas) { // iteramos todas las metricas que tenemos en el mapa de metricas (hacemos destructuring)
-              if (funcion.length == 1) { // si tiene un argumento es porque es callback
+              if (funcion.length === 1) { // si tiene un argumento es porque es callback
                 funcion = util.promisify(funcion) // convertimos funciones de callback a funciones de promesa (a partir de node 8)
               }
               mensaje.metrics.push({
@@ -76,13 +74,13 @@ class PlatziverseAgent extends EventEmitter {
               })
             }
             debug('Enviando', mensaje)
-            cliente.publish('agent/message', JSON.stringify(mensaje))
+            this._cliente.publish('agent/message', JSON.stringify(mensaje))
             this.emit('message', mensaje)
           }
-        }, opciones.interval) // El tiempo lo tomamos de las opciones que nos pasan
+        }, this._opciones.interval) // El tiempo lo tomamos de las opciones que nos pasan
       })
       // cuando este cliente reciba un mensaje...
-      cliente.on('message', (topic, payload) => { // vemos si redistibuirlo o no
+      this._cliente.on('message', (topic, payload) => { // vemos si redistibuirlo o no
         payload = parsePayload(payload) // convertimos de string a JSON object
         // retransmito el mensaje, o no, dependiendo de ciertas condiciones
         let broadcast = false // por defecto no retransmito
@@ -94,7 +92,7 @@ class PlatziverseAgent extends EventEmitter {
             break
         }
         if (broadcast) {
-          this.emit(topic, paylaod) // lo retransmito si es correcto
+          this.emit(topic, payload) // lo retransmito si es correcto
         }
       })
       this._cliente.on('error', () => this.disconnect()) // si ocurre un error nos desconectamos
