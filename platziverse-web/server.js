@@ -7,10 +7,12 @@ const chalk = require('chalk')
 const path = require('path') // para no crear rutas a mano y que sean compatibles con cualquier SO
 const socketio = require('socket.io')
 const PlatziverseAgent = require('platziverse-agent')
-const { pipe } = require('platziverse-utils')
+const { pipe, middlewareDeErrores } = require('platziverse-utils')
+const proxy = require('./proxy')
+const asyncify = require('express-asyncify')
 
 const port = process.env.PORT || 8080
-const app = express()
+const app = asyncify(express())
 const server = http.createServer(app)
 const io = socketio(server) // integramos socketio y express
 /*
@@ -21,6 +23,7 @@ const io = socketio(server) // integramos socketio y express
 const agent = new PlatziverseAgent()
 
 app.use(express.static(path.join(__dirname, 'public'))) // __dirname contiene la ruta desde la raiz hasta donde estamos posicionados ahora, y alado le indicamos donde queremor ir
+app.use('/', proxy)
 
 // escuchamos el evento connect que cuando se conecta un cliente nos entrega un socket
 io.on('connect', socket => {
@@ -44,15 +47,7 @@ io.on('connect', socket => {
   */
 })
 
-function handleFatalError(err) {
-  console.error(`${chalk.red('[fatal error]')} ${err.message}`)
-  console.error(err.stack)
-  process.exit(1)
-}
-
-// manejo de llamadas sincronas como de promesas
-process.on('uncaughtException', handleFatalError)
-process.on('unhandledRejection', handleFatalError)
+app.use(middlewareDeErrores(debug))
 
 server.listen(port, () => {
   console.log(`${chalk.green('platziverse-web')} servidor esuchando en el puerto ${port}`)
