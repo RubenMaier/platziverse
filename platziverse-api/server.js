@@ -5,6 +5,7 @@ const http = require('http')
 const chalk = require('chalk')
 const express = require('express') // creara una funcion que se ejecutara cada vez que se genere una peticion a nuestro servidor
 const asyncify = require('express-asyncify')
+const { middlewareDeErrores, handleFatalError } = require('platziverse-utils')
 
 const api = require('./api')
 
@@ -16,19 +17,7 @@ const server = http.createServer(app)
 app.use('/api', api)
 
 // middleware que maneja errores
-app.use((err, req, res, next) => {
-  debug(`Error: ${err.message}`)
-  if (err.message.match(/no encontrado/)) {
-    return res.status(404).send({ error: err.message }) // en este caso el codigo que le enviamos le indica que no se encontro algo
-  }
-  return res.status(500).send({ error: err.message }) // le comunico server error
-})
-
-function handleFatalError (err) {
-  console.error(`${chalk.red('[fatal error]')} ${err.message}`)
-  console.error(err.stack) // muestro el stack traise
-  process.exit(1) // matamos el proceso, el uno es el "exit could" que me indica que se termino con error
-}
+app.use(middlewareDeErrores(debug))
 
 if (!module.parent) { // se ejecuta si este archivo no es requerido por alguien mas
   process.on('uncaughtException', handleFatalError)

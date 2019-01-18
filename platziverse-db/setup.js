@@ -6,7 +6,7 @@ const debug = require('debug')('platziverse:db:setup')
 const inquirer = require('inquirer') // nos permite hacer preguntas en consola y mediante respuestas tomar decisiones
 // recordar correr "npm i chalk"
 const chalk = require('chalk') // permite estilizar cosas en la consola
-const { crearConfig } = require('platziverse-utils')
+const { crearConfigDB, handleFatalError } = require('platziverse-utils')
 
 const prompt = inquirer.createPromptModule() // creamos un objeto de prompt (nos permite hacer preguntas en forma de promesas)
 
@@ -23,18 +23,12 @@ async function setup() {
     return console.log('No pasa nada, no la borramos')
   }
 
-  const config = crearConfig(true, debug)
+  const configDB = crearConfigDB(true, debug)
 
-  await db(config).catch(manejoDeError) // obtenemos el objeto de db, si hay errores lo capturo
+  await db(configDB).catch(handleFatalError) // obtenemos el objeto de db, si hay errores lo capturo
 
   console.log('Exito!')
   process.exit(0)
-}
-
-function manejoDeError(err) {
-  console.error(`${chalk.red('[error]')} ${err.message}`) // mostramos el mensaje de error con chalk de forma mas bonita en color rojo
-  console.error(`${chalk.gray(err.stack)}`) // para saber exactamente que error ocurrio
-  process.exit(1) // matamos el proceso
 }
 
 setup()

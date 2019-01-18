@@ -6,7 +6,7 @@ const redis = require('redis')
 const chalk = require('chalk') // para tener colores en la terminal
 const db = require('platziverse-db')
 
-const { parsePayload, crearConfig } = require('platziverse-utils') // somo me extrae la funcion parsePayload de la libreria utilidades
+const { parsePayload, crearConfigDB, handleFatalError } = require('platziverse-utils') // somo me extrae la funcion parsePayload de la libreria utilidades
 
 const backend = {
   type: 'redis',
@@ -20,7 +20,7 @@ const settings = {
   backend // informacion del backend
 }
 
-const config = crearConfig(false, debug)
+const configDB = crearConfigDB(false, debug)
 
 // instanciamos el servidor
 const server = new mosca.Server(settings) // es un eventEmitter (agregamos funcionalidades cuando el servidor me lance eventos)
@@ -121,7 +121,7 @@ server.on('published', async (packet, client) => {
 })
 
 server.on('ready', async () => {
-  const services = await db(config).catch(handleFatalError)
+  const services = await db(configDB).catch(handleFatalError)
   Agent = services.Agent
   Metric = services.Metric
   // este evento es lanzado cuando el servidor este listo e inicializado
@@ -135,12 +135,7 @@ server.on('ready', async () => {
  */
 server.on('error', handleFatalError)
 
-function handleFatalError(err) {
-  console.error(`${chalk.red('[fatal error]')} ${err.message}`)
-  console.error(err.stack)
-  process.exit(1) // tiramos el servidor cerrando el proceso
-}
-function handleError(err) {
+function handleError (err) {
   console.error(`${chalk.red('[error]')} ${err.message}`)
   console.error(err.stack) // no mata al proceso
 }

@@ -20,7 +20,7 @@ const opcionesDefaults = {
 }
 
 class PlatziverseAgent extends EventEmitter {
-  constructor(opciones) {
+  constructor (opciones) {
     super()
 
     this._timer = null // referencia interna del timer que vamos a tener
@@ -31,15 +31,15 @@ class PlatziverseAgent extends EventEmitter {
     this._metricas = new Map()
   }
 
-  addMetric(tipo, funcion) {
+  addMetric (tipo, funcion) {
     this._metricas.set(tipo, funcion)
   }
 
-  removeMetric(tipo) {
+  removeMetric (tipo) {
     this._metricas.delete(tipo)
   }
 
-  connect() {
+  connect () {
     if (!this._started) { // lo hace algo si el timer no esta conectado o activado
       this._cliente = mqtt.connect(this._opciones.mqtt.host) // nos conectamos al cliente
       // nos suscribimos a cada uno de los topicos
@@ -99,7 +99,7 @@ class PlatziverseAgent extends EventEmitter {
     }
   }
 
-  disconnect() {
+  disconnect () {
     if (this._started) { // nos desconectamo solo si el servicio esta inicializado
       clearInterval(this._timer) // paramos el intervalo con la referencia
       this._started = false // marcamos el estado como off

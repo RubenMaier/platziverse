@@ -4,10 +4,9 @@ const debugDB = require('debug')('platziverse:api:db')
 const debug = require('debug')('platziverse:api:routes')
 const express = require('express')
 const db = require('platziverse-db')
-const { crearConfig } = require('platziverse-utils')
 const asyncify = require('express-asyncify')
 const auth = require('express-jwt') // middleware para autenticar rutas (aseguramos ruta por ruta)
-const { secretKey } = require('platziverse-utils')
+const { crearConfigDB, secretKey } = require('platziverse-utils')
 const createGuard = require('express-jwt-permissions')
 
 const api = asyncify(express.Router()) // instancia de router en express
@@ -18,13 +17,13 @@ let servicios, Agent, Metric
 
 const guard = createGuard()
 
-const config = crearConfig(false, debugDB)
+const configDB = crearConfigDB(false, debugDB)
 
 api.use('*', async (req, res, next) => {
   if (!servicios) {
     debug('Conectando la DB')
     try {
-      servicios = await db(config)
+      servicios = await db(configDB)
     } catch (err) {
       return next(err)
     }
