@@ -1,6 +1,6 @@
 <template>
   <div>
-    <metric uuid="c93e45ca-b6dd-4c45-9a91-674d27c31b66" type="callbackMetric" :socket="socket"></metric>
+    <agent uuid="040e3470-6a32-44bd-9c72-b8d8ba80f64a" :socket="socket"></agent>
     <agent v-for="agent in agents" :uuid="agent.uuid" :key="agent.uuid"></agent>
     <p v-if="error">{{error}}</p>
   </div>
