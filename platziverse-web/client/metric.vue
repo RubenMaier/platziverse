@@ -35,7 +35,7 @@ module.exports = {
   components: {
     LineChart
   },
-  props: ["uuid", "type"],
+  props: ["uuid", "type", "socket"], // recibimos estos valores como una propiedad
 
   data() {
     return {
@@ -68,14 +68,11 @@ module.exports = {
         return; // no sigo ejecutando el componente
       }
 
-      console.log(resultado);
-
       const labels = [];
       const data = [];
 
       if (Array.isArray(resultado)) {
         resultado.forEach(elementoMetrica => {
-          console.log(elementoMetrica);
           labels.push(moment(elementoMetrica.createdAt).format("HH:mm:ss")); // instante en el que se tomo la metrica
           data.push(elementoMetrica.value); // valor de la metrica
         });
@@ -91,6 +88,40 @@ module.exports = {
           }
         ]
       };
+
+      this.iniciarTiempoReal();
+    },
+
+    iniciarTiempoReal() {
+      const { type, uuid, socket } = this;
+      socket.on("agent/message", payload => {
+        // recibimos solo de este agente y esta metrica
+        if (payload.agent.uuid === uuid) {
+          const metric = payload.metrics.find(metrica => metrica.type === type);
+          // copia de valores actuales
+          const labels = this.datacollection.labels;
+          const data = this.datacollection.datasets[0].data; // tenemos solo 1 dataset
+          // corremos la grafica, vamos a empezar viendo 20 metricas
+          const length = labels.length || data.length; // tamaño actual (ambos deberian ser iguales)
+          if (length >= 20) {
+            labels.shift(); // elimino los 2 primeros elementos de ese arreglo
+            data.shift();
+            labels.push(moment(metric.createdAt).format("HH:mm:ss")); // y añadimos un nuevo elemento
+            data.push(metric.value);
+            this.datacollection = {
+              // redefino el datacollection para que el componente se renderice en su propiedad de reactividad
+              labels,
+              datasets: [
+                {
+                  backgroundColor: this.color,
+                  label: type,
+                  data
+                }
+              ]
+            };
+          }
+        }
+      });
     },
 
     handleError(err) {
