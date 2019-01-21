@@ -58,26 +58,21 @@ module.exports = {
         url: `http://localhost:8080/metrics/${uuid}/${type}`,
         json: true
       };
-
       let resultado;
-
       try {
         resultado = await request(opciones);
       } catch (e) {
         this.error = e.error.error; // e.error contiene el error del request y e.error.error contiene el error de nuestra api
         return; // no sigo ejecutando el componente
       }
-
       const labels = [];
       const data = [];
-
       if (Array.isArray(resultado)) {
-        resultado.forEach(elementoMetrica => {
-          labels.push(moment(elementoMetrica.createdAt).format("HH:mm:ss")); // instante en el que se tomo la metrica
-          data.push(elementoMetrica.value); // valor de la metrica
+        resultado.forEach(metrica => {
+          labels.push(moment(metrica.createdAt).format("HH:mm:ss")); // instante en el que se tomo la metrica
+          data.push(metrica.value); // valor de la metrica
         });
       }
-
       this.datacollection = {
         labels,
         datasets: [
@@ -106,20 +101,20 @@ module.exports = {
           if (length >= 20) {
             labels.shift(); // elimino los 2 primeros elementos de ese arreglo
             data.shift();
-            labels.push(moment(metric.createdAt).format("HH:mm:ss")); // y añadimos un nuevo elemento
-            data.push(metric.value);
-            this.datacollection = {
-              // redefino el datacollection para que el componente se renderice en su propiedad de reactividad
-              labels,
-              datasets: [
-                {
-                  backgroundColor: this.color,
-                  label: type,
-                  data
-                }
-              ]
-            };
           }
+          labels.push(moment(metric.createdAt).format("HH:mm:ss")); // y añadimos un nuevo elemento
+          data.push(metric.value);
+          this.datacollection = {
+            // redefino el datacollection para que el componente se renderice en su propiedad de reactividad
+            labels,
+            datasets: [
+              {
+                backgroundColor: this.color,
+                label: type,
+                data
+              }
+            ]
+          };
         }
       });
     },

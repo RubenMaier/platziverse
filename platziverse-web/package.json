@@ -8,9 +8,9 @@
     "prestart-dev": "npm run build",
     "build": "browserify -t babelify -t vueify client/app.js -o public/bundle.js",
     "start-win": "SET NODE_ENV=production && node server.js",
-    "start-mac": "NODE_ENV=production node server.js",
-    "start-dev-win": "SET DEBUG=platziverse:* && nodemon server.js",
-    "start-dev-mac": "DEBUG=platziverse:* nodemon server.js",
+    "start": "NODE_ENV=production node server.js",
+    "start-dev-win": "SET DEBUG=platziverse:* && npm run build && nodemon server.js",
+    "start-dev": "DEBUG=platziverse:* nodemon server.js",
     "lint": "standard",
     "lint-fix": "standard --fix"
   },

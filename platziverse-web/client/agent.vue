@@ -121,6 +121,8 @@ module.exports = {
       this.pid = agent.pid;
 
       this.cargarMetricas();
+
+      this.comenzarEnTiempoReal();
     },
 
     async cargarMetricas() {
@@ -138,6 +140,16 @@ module.exports = {
         return;
       }
       this.metrics = metricas;
+    },
+
+    comenzarEnTiempoReal() {
+      const { uuid, socket } = this;
+
+      socket.on("agent/disconnected", payload => {
+        if (payload.agent.uuid) {
+          this.connected = false;
+        }
+      });
     },
 
     toggleMetrics() {

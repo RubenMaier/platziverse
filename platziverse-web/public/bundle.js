@@ -47,6 +47,8 @@ module.exports = {
       this.pid = agent.pid;
 
       this.cargarMetricas();
+
+      this.comenzarEnTiempoReal();
     },
     cargarMetricas: async function cargarMetricas() {
       var uuid = this.uuid;
@@ -64,6 +66,19 @@ module.exports = {
         return;
       }
       this.metrics = metricas;
+    },
+    comenzarEnTiempoReal: function comenzarEnTiempoReal() {
+      var _this = this;
+
+      var uuid = this.uuid,
+          socket = this.socket;
+
+
+      socket.on("agent/disconnected", function (payload) {
+        if (payload.agent.uuid) {
+          _this.connected = false;
+        }
+      });
     },
     toggleMetrics: function toggleMetrics() {
       this.showMetrics = this.showMetrics ? false : true;
@@ -113,6 +128,7 @@ var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("body {\n
 
 var io = require("socket.io-client");
 var socket = io();
+var request = require("request-promise-native");
 
 module.exports = {
   data: function data() {
@@ -127,14 +143,41 @@ module.exports = {
 
 
   methods: {
-    initialize: function initialize() {}
+    initialize: async function initialize() {
+      var _this = this;
+
+      var opciones = {
+        method: "GET",
+        url: "http://localhost:8080/agents",
+        json: true
+      };
+      var resultado = void 0;
+      try {
+        resultado = await request(opciones);
+      } catch (e) {
+        this.error = e.error.error;
+        return;
+      }
+      this.agents = resultado;
+
+      socket.on("agent/connected", function (payload) {
+        var uuid = payload.agent.uuid;
+
+        var existe = _this.agents.find(function (agente) {
+          return agente.uuid === uuid;
+        });
+        if (!existe) {
+          _this.agents.push(payload.agent);
+        }
+      });
+    }
   }
 };
 })()
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('agent',{attrs:{"uuid":"040e3470-6a32-44bd-9c72-b8d8ba80f64a","socket":_vm.socket}}),_vm._v(" "),_vm._l((_vm.agents),function(agent){return _c('agent',{key:agent.uuid,attrs:{"uuid":agent.uuid}})}),_vm._v(" "),(_vm.error)?_c('p',[_vm._v(_vm._s(_vm.error))]):_vm._e()],2)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_vm._l((_vm.agents),function(agent){return _c('agent',{key:agent.uuid,attrs:{"uuid":agent.uuid,"socket":_vm.socket}})}),_vm._v(" "),(_vm.error)?_c('p',[_vm._v(_vm._s(_vm.error))]):_vm._e()],2)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -147,7 +190,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     hotAPI.reload("data-v-15abc53c", __vue__options__)
   }
 })()}
-},{"socket.io-client":413,"vue":484,"vue-hot-reload-api":483,"vueify/lib/insert-css":485}],4:[function(require,module,exports){
+},{"request-promise-native":388,"socket.io-client":413,"vue":484,"vue-hot-reload-api":483,"vueify/lib/insert-css":485}],4:[function(require,module,exports){
 'use strict';
 
 var _require = require('vue-chartjs'),
@@ -203,26 +246,21 @@ module.exports = {
         url: "http://localhost:8080/metrics/" + uuid + "/" + type,
         json: true
       };
-
       var resultado = void 0;
-
       try {
         resultado = await request(opciones);
       } catch (e) {
         this.error = e.error.error;
         return;
       }
-
       var labels = [];
       var data = [];
-
       if (Array.isArray(resultado)) {
-        resultado.forEach(function (elementoMetrica) {
-          labels.push(moment(elementoMetrica.createdAt).format("HH:mm:ss"));
-          data.push(elementoMetrica.value);
+        resultado.forEach(function (metrica) {
+          labels.push(moment(metrica.createdAt).format("HH:mm:ss"));
+          data.push(metrica.value);
         });
       }
-
       this.datacollection = {
         labels: labels,
         datasets: [{
@@ -253,17 +291,17 @@ module.exports = {
           if (length >= 20) {
             labels.shift();
             data.shift();
-            labels.push(moment(metric.createdAt).format("HH:mm:ss"));
-            data.push(metric.value);
-            _this.datacollection = {
-              labels: labels,
-              datasets: [{
-                backgroundColor: _this.color,
-                label: type,
-                data: data
-              }]
-            };
           }
+          labels.push(moment(metric.createdAt).format("HH:mm:ss"));
+          data.push(metric.value);
+          _this.datacollection = {
+            labels: labels,
+            datasets: [{
+              backgroundColor: _this.color,
+              label: type,
+              data: data
+            }]
+          };
         }
       });
     },

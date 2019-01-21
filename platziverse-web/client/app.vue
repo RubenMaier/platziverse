@@ -1,7 +1,6 @@
 <template>
   <div>
-    <agent uuid="040e3470-6a32-44bd-9c72-b8d8ba80f64a" :socket="socket"></agent>
-    <agent v-for="agent in agents" :uuid="agent.uuid" :key="agent.uuid"></agent>
+    <agent v-for="agent in agents" :uuid="agent.uuid" :key="agent.uuid" :socket="socket"></agent>
     <p v-if="error">{{error}}</p>
   </div>
 </template>
@@ -18,6 +17,7 @@ body {
 // ya no es una variable global, sino que la requerimos del modulo
 const io = require("socket.io-client"); // nos permite ejecutar socketio desde el lado del cliente
 const socket = io(); // nos conectamos al servidor
+const request = require("request-promise-native");
 
 module.exports = {
   data() {
@@ -33,7 +33,29 @@ module.exports = {
   },
 
   methods: {
-    initialize() {}
+    async initialize() {
+      const opciones = {
+        method: "GET",
+        url: "http://localhost:8080/agents",
+        json: true
+      };
+      let resultado;
+      try {
+        resultado = await request(opciones);
+      } catch (e) {
+        this.error = e.error.error;
+        return;
+      }
+      this.agents = resultado;
+
+      socket.on("agent/connected", payload => {
+        const { uuid } = payload.agent;
+        const existe = this.agents.find(agente => agente.uuid === uuid);
+        if (!existe) {
+          this.agents.push(payload.agent);
+        }
+      });
+    }
   }
 };
 </script>
