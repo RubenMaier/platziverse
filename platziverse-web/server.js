@@ -7,7 +7,7 @@ const chalk = require('chalk')
 const path = require('path') // para no crear rutas a mano y que sean compatibles con cualquier SO
 const socketio = require('socket.io')
 const PlatziverseAgent = require('platziverse-agent')
-const { pipe, middlewareDeErrores } = require('platziverse-utils')
+const { pipe, middlewareDeErrores, handleFatalError } = require('platziverse-utils')
 const proxy = require('./proxy')
 const asyncify = require('express-asyncify')
 
@@ -48,6 +48,9 @@ io.on('connect', socket => {
 })
 
 app.use(middlewareDeErrores(debug))
+
+process.on('uncaughtException', handleFatalError)
+process.on('unhandledRejection', handleFatalError)
 
 server.listen(port, () => {
   console.log(`${chalk.green('platziverse-web')} servidor esuchando en el puerto ${port}`)

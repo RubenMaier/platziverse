@@ -1,7 +1,6 @@
 <template>
   <div>
-    <agent uuid="yyy"></agent>
-    <metric type="memory" uuid="uuid"></metric>
+    <metric uuid="7362e7b0-c1f9-4600-9821-176b6d4745a8" type="promiseMetric"></metric>
     <agent v-for="agent in agents" :uuid="agent.uuid" :key="agent.uuid"></agent>
     <p v-if="error">{{error}}</p>
   </div>
