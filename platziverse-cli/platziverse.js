@@ -17,6 +17,11 @@ const blessed = require('blessed') /* es la base que nos permite crear que nos p
 una base rica en la terminal */
 const contrib = require('blessed-contrib') /* contiene los componentes o witches que nosotros
 vamos a utilizar para crear las lineas o gráficas de visualización de nuestras métricas */
+const platziverseAgent = require('platziverse-agent')
+
+const agent = new platziverseAgent() // creamos una instancia
+const agents = new Map()
+const agentMetrics = new Map()
 
 const screen = blessed.screen() // esto nos genera la pantalla con la cual trabajaremos
 /* creamos un grid o un componente de grid que va a contener una fila  y 4 columnas. En una
@@ -44,9 +49,40 @@ const line = grid.set(0, 1, 1, 3, contrib.line, {
     xPadding: 5 // para tener el espacio entre cada uno de los valores
 }) /* componente de la grafica. */
 
+agent.on('agent/connected', payload => {
+    const { uuid } = payload.agent
+    if (!agents.has(uuid)) { // si no tenemos este agente con uuid en el mapa lo agregamos
+        agents.set(uuid, payload.agent) // lo agregamos con la uuid y con la informacion del agente que nos llegó
+        agentMetrics.set(uuid, {}) /* tambien agregamos un objeto asociado a este agente con uuid pero sin 
+        las metricas puesto que estas llegan recien en el evento de 'agent/message' */
+    }
+    renderData() // se encarga de pintar esta informacion de los agente en el arbol
+})
+
+function renderData() {
+    const treeData = {} // crea un objeto que es el que le voy a pasar al tree y tiene la info de nuestros agentes
+    for (let [uuid, val] of agents) { // recorro todo los agentes que tengo conectado
+        const title = `${val.name} - (${val.pid})` /* si multiples agentes se conectan con el mismo nombre los
+        identifico con el identificador del proceso (pid) */
+        treeData[title] = {
+            uuid,
+            agent: true,
+            children: {}
+        }
+    }
+    tree.setData({
+        extended: true, // lo muestro todo abierto
+        children: treeData // el hijo es el objeto que cree
+    })
+    screen.render()
+}
+
 screen.key(['escape', 'q', 'C-c'], (caracter, tecla) => {
     process.exit(0) // finalización exitosa
 }) /* capturamos teclas. En este caso son "escape", "q" o "ctrl+c" */
+
+// nos conectamos luego de crear todo el layout
+agent.connect() // ya deberia comenzar a recibir los datos de metrica, agente conectado, etc
 
 // renderizamos todos nuestros componentes
 screen.render()
