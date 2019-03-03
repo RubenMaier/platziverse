@@ -6,31 +6,47 @@
 // para eso debemos ejecutar "chmod +x platziverse.js"
 'use strict'
 
-const minimist = require('minimist')
-const args2 = require('args')
+/* eslint: la regla "new-cap" estará apagada, para evitar que nos tire error cuando un objeto
+no tenga su metodo con mayuscula como es el caso de grid, tambien apago la de "no-unused-vars"
+que es la que nos jode cuando tenemos variables declaradas no asignadas */
 
-console.log('Hola viejo!')
+/* eslint new-cap: "off" */
+/* eslint no-unused-vars: "off" */
 
-console.log(process.argv) /* objeto de argumentos (en consola nos va a mostrar en primer lugar
-cual es el binario de node que nosotros estamos ejecutando luego nos va a mostrar cual es el 
-script que estamos ejecutando, a partir del tercer argumento los que aparezcan (incluyendo al
-tercero) serán todos los que yo mismo valla agregando a la hora de ejecutar la aplicación.
-Ojo pero no es la mejor forma, tenemos modulos que nos ayudan a mejorar el trabajo como
-"minimist" que es una especie de parser de argv */
+const blessed = require('blessed') /* es la base que nos permite crear que nos permite crear
+una base rica en la terminal */
+const contrib = require('blessed-contrib') /* contiene los componentes o witches que nosotros
+vamos a utilizar para crear las lineas o gráficas de visualización de nuestras métricas */
 
-const args = minimist(process.argv)
-console.log(args)
-// notese que ahora tengo todo parseado si llamo por ejemplo a "./platziverse.js -- host 12313 --user Ruben"
+const screen = blessed.screen() // esto nos genera la pantalla con la cual trabajaremos
+/* creamos un grid o un componente de grid que va a contener una fila  y 4 columnas. En una
+columna vamos a poner un componente que es de tipo arbol para nosotros listar los agentes y
+cada una de sus metricas (recordemos el modulo archi para pintar objetos de tipo arbol). En
+el resto de contenidos de las otras filas de las restantes 3 columnas vamos a poner  un
+componente de linea/gráfica. */
 
+const grid = new contrib.grid({
+    rows: 1,
+    cols: 4,
+    screen // le pasamos la instancia de donde generara este grid
+})
 
-// otro modulo es "args" que me permite crear modulos bastante desarrollados
+const tree = grid.set(0, 0, 1, 1, contrib.tree, {
+    label: 'Agentes conectados'
+}) /* aca vamos a tener la lista de los agentes. Fila 0 columna 0 y le indicamos que ocupe todo
+el espacio de la columna y la fila con ese 1 del tercer y cuarto argumento. El quinto argumento
+indica el tipo que es y el sexto argumento es el parámetro de configuración */
 
-args2
-    .option('port', 'The port on which the app will be running', 3000)
-    .option('reload', 'Enable/disable livereloading')
-    .command('serve', 'Serve your static site', ['s'])
+const line = grid.set(0, 1, 1, 3, contrib.line, {
+    label: 'Metrica',
+    showLegend: true, // mostramos la leyenda de nuestra grafica
+    minY: 0, // minimo valor de y
+    xPadding: 5 // para tener el espacio entre cada uno de los valores
+}) /* componente de la grafica. */
 
-args2.parse(process.argv)
+screen.key(['escape', 'q', 'C-c'], (caracter, tecla) => {
+    process.exit(0) // finalización exitosa
+}) /* capturamos teclas. En este caso son "escape", "q" o "ctrl+c" */
 
-/* notese que con este nuevo modo si llamamos por ejemplo "./platziverse.js -h" nos desplegará
-una lista de ayuda con lo que podemos hacer y con los comentarios correspondientes" */
+// renderizamos todos nuestros componentes
+screen.render()
