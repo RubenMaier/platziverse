@@ -18,6 +18,7 @@ una base rica en la terminal */
 const contrib = require('blessed-contrib') /* contiene los componentes o witches que nosotros
 vamos a utilizar para crear las lineas o gráficas de visualización de nuestras métricas */
 const platziverseAgent = require('platziverse-agent')
+const moment = require('moment')
 
 const agent = new platziverseAgent() // creamos una instancia
 const agents = new Map()
@@ -59,6 +60,58 @@ agent.on('agent/connected', payload => {
     renderData() // se encarga de pintar esta informacion de los agente en el arbol
 })
 
+agent.on('agent/disconnected', payload => {
+    const { uuid } = payload.agent
+    if (agents.has(uuid)) { // si este agente esta en la lista lo borramos
+        agents.delete(uuid) // borramos el agente
+        agentMetrics.delete(uuid) // borramos las metricas de este agente
+    }
+    renderData()
+})
+
+agent.on('agent/message', payload => {
+    const { uuid } = payload.agent
+    const { timestamp } = payload // para saber el tiempo en que la metrica llego
+    if (!agents.has(uuid)) { // que pasa si la app esta corriendo y llega un agente... lo agregamos
+        agents.set(uuid, payload.agent)
+        agentMetrics.set(uuid, {})
+    }
+    const metrics = agentMetrics.get(uuid) // obtenemos las metricas
+    /* se supone el formato/estructura como:
+    metrics = {
+        rss: [200, 300, 200],
+        promiseMetric: [0.1, 0.2, 0.3]
+    } 
+    */
+    payload.metrics.forEach(m => { // m = unaMetrica
+        const { type, value } = m // extraemos los valores que tiene
+        if (!Array.isArray(metrics[type])) { // si no es un arreglo, lo hago arreglo
+            metrics[type] = [] // arreglo vacio
+        }
+        const length = metrics[type].length
+        if (length => 20) { // si hay 20 o mas
+            metrics[type].shift() // eliminamos la primer posicion (funcion shift hace eso)
+        }
+        metrics[type].push({ // agregamos el valor metrics
+            value,
+            timestamp: moment(timestamp).format('HH:mm:ss') // lo formateamos
+        })
+    })
+    renderData()
+})
+
+screen.key(['escape', 'q', 'C-c'], (caracter, tecla) => {
+    process.exit(0) // finalización exitosa
+}) /* capturamos teclas. En este caso son "escape", "q" o "ctrl+c" */
+
+// nos conectamos luego de crear todo el layout
+agent.connect() // ya deberia comenzar a recibir los datos de metrica, agente conectado, etc
+
+tree.focus() // para interactuar con el telcado, donde este tenga el foco
+
+// renderizamos todos nuestros componentes
+screen.render()
+
 function renderData() {
     const treeData = {} // crea un objeto que es el que le voy a pasar al tree y tiene la info de nuestros agentes
     for (let [uuid, val] of agents) { // recorro todo los agentes que tengo conectado
@@ -69,6 +122,27 @@ function renderData() {
             agent: true,
             children: {}
         }
+        const metrics = agentMetrics.get(uuid)
+        Object.keys(metrics).forEach(type => { // iteramos sobre las llaves del objeto
+            const metric = { // definimos propiedades
+                uuid,
+                type,
+                metric: true
+            }
+            const metricName = `${type}`
+            treeData[title].children[metricName] = metric // la agrego como un hijo
+            /* queda algo asi el objeto...
+            {
+                children: {
+                    ress: {
+                        uuid,
+                        type,
+                        metric: true
+                    } 
+                }
+            }
+            */
+        })
     }
     tree.setData({
         extended: true, // lo muestro todo abierto
@@ -76,13 +150,3 @@ function renderData() {
     })
     screen.render()
 }
-
-screen.key(['escape', 'q', 'C-c'], (caracter, tecla) => {
-    process.exit(0) // finalización exitosa
-}) /* capturamos teclas. En este caso son "escape", "q" o "ctrl+c" */
-
-// nos conectamos luego de crear todo el layout
-agent.connect() // ya deberia comenzar a recibir los datos de metrica, agente conectado, etc
-
-// renderizamos todos nuestros componentes
-screen.render()
