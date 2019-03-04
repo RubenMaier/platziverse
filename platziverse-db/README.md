@@ -65,3 +65,8 @@ git push origin master --tags
 utilizamos la libreria "longjohn"
 stack trace del event loop + stack trace normal
 ojo con usarlo en entornos de produccion porque genera mucho overhead
+
+## cumplimos el reto de pasarle una variable al comando
+Ahora al usar
+"npm run setup-mac -- --yes" ignoramos la validación de si queremos o no hacerlo
+Usamos la libreria minimist para parcear los argumentos que le pasamos al comando
