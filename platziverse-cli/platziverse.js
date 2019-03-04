@@ -17,12 +17,17 @@ const blessed = require('blessed') /* es la base que nos permite crear que nos p
 una base rica en la terminal */
 const contrib = require('blessed-contrib') /* contiene los componentes o witches que nosotros
 vamos a utilizar para crear las lineas o gráficas de visualización de nuestras métricas */
-const platziverseAgent = require('platziverse-agent')
+const PlatziverseAgent = require('platziverse-agent')
 const moment = require('moment')
 
-const agent = new platziverseAgent() // creamos una instancia
+const agent = new PlatziverseAgent() // creamos una instancia
 const agents = new Map()
 const agentMetrics = new Map()
+let extended = [] // guardamos los ids de los componentes que extendemos
+let selected = {
+    uuid: null,
+    type: null
+}
 
 const screen = blessed.screen() // esto nos genera la pantalla con la cual trabajaremos
 /* creamos un grid o un componente de grid que va a contener una fila  y 4 columnas. En una
@@ -44,6 +49,11 @@ el espacio de la columna y la fila con ese 1 del tercer y cuarto argumento. El q
 indica el tipo que es y el sexto argumento es el parámetro de configuración */
 
 const line = grid.set(0, 1, 1, 3, contrib.line, {
+    style: {
+        line: "yellow",
+        text: "green",
+        baseline: "black"
+    },
     label: 'Metrica',
     showLegend: true, // mostramos la leyenda de nuestra grafica
     minY: 0, // minimo valor de y
@@ -85,11 +95,11 @@ agent.on('agent/message', payload => {
     */
     payload.metrics.forEach(m => { // m = unaMetrica
         const { type, value } = m // extraemos los valores que tiene
-        if (!Array.isArray(metrics[type])) { // si no es un arreglo, lo hago arreglo
+        if (!Array.isArray(metrics[type])) {// si no es un arreglo, lo hago arreglo
             metrics[type] = [] // arreglo vacio
         }
         const length = metrics[type].length
-        if (length => 20) { // si hay 20 o mas
+        if (length >= 20) { // si hay 20 o mas
             metrics[type].shift() // eliminamos la primer posicion (funcion shift hace eso)
         }
         metrics[type].push({ // agregamos el valor metrics
@@ -98,6 +108,20 @@ agent.on('agent/message', payload => {
         })
     })
     renderData()
+})
+
+tree.on('select', nodo => {  // nos da el objeto del elemento sobre el que presionamos enter
+    const { uuid, type } = nodo
+    if (nodo.agent) {
+        // si este nodo esta extendido lo agregamos, sino lo quitamos del modulo de extendido
+        nodo.extended ? extended.push(uuid) : extended = extended.filter(e => e !== uuid)
+        selected.uuid = null
+        selected.type = null
+        return
+    }
+    selected.uuid = uuid
+    selected.type = type
+    renderMetric()
 })
 
 screen.key(['escape', 'q', 'C-c'], (caracter, tecla) => {
@@ -114,12 +138,14 @@ screen.render()
 
 function renderData() {
     const treeData = {} // crea un objeto que es el que le voy a pasar al tree y tiene la info de nuestros agentes
+    let idx = 0
     for (let [uuid, val] of agents) { // recorro todo los agentes que tengo conectado
         const title = `${val.name} - (${val.pid})` /* si multiples agentes se conectan con el mismo nombre los
         identifico con el identificador del proceso (pid) */
         treeData[title] = {
             uuid,
             agent: true,
+            extended: extended.includes(uuid), // si estaba extendido, queda extendido
             children: {}
         }
         const metrics = agentMetrics.get(uuid)
@@ -129,7 +155,7 @@ function renderData() {
                 type,
                 metric: true
             }
-            const metricName = `${type}`
+            const metricName = `${type} ${' '.repeat(1000)} ${idx++}`
             treeData[title].children[metricName] = metric // la agrego como un hijo
             /* queda algo asi el objeto...
             {
@@ -148,5 +174,28 @@ function renderData() {
         extended: true, // lo muestro todo abierto
         children: treeData // el hijo es el objeto que cree
     })
-    screen.render()
+    renderMetric()
 }
+
+function renderMetric() {
+    if (!selected.uuid && !selected.type) { // si no tengo nada seleccionado...
+        const elementoVacio = {
+            title: '',
+            x: [],
+            y: []
+        }
+        line.setData([elementoVacio]) // pintamos una grafica vacia
+        screen.render() // visualizamos la pantalla
+        return // terminamos
+    }
+    // si en cambio selecionamos una metrica...
+    const metrics = agentMetrics.get(selected.uuid) // obtenemos la metrica
+    const values = metrics[selected.type]
+    const series = [{ // creamos el objeto a agregar en la linea
+        title: selected.type,
+        x: values.map(v => v.timestamp).slice(-10),
+        y: values.map(v => v.value).slice(-10)
+    }]
+    line.setData(series)
+    screen.render()
+} 
