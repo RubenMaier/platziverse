@@ -35,11 +35,12 @@
   },
   "devDependencies": {
     "ava": "^0.25.0",
+    "longjohn": "^0.2.12",
     "nyc": "^13.0.1",
+    "platziverse-fixtures": "file:../platziverse-fixtures",
     "proxyquire": "^2.1.0",
     "sinon": "^1.17.7",
     "sqlite3": "^4.0.2",
-    "standard": "^11.0.1",
-    "platziverse-fixtures": "file:../platziverse-fixtures"
+    "standard": "^11.0.1"
   }
 }

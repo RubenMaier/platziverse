@@ -57,3 +57,11 @@ git tag 6.1.0
 git push origin master
 git push origin master --tags
 ```
+
+
+
+
+## depuracion de funciones asincronas
+utilizamos la libreria "longjohn"
+stack trace del event loop + stack trace normal
+ojo con usarlo en entornos de produccion porque genera mucho overhead

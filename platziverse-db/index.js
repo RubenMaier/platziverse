@@ -2,6 +2,7 @@
 // y crear un marco de trabajo, ademas usaremos luego lint
 // para validar y obligarnos a escribir asi
 
+require('longjohn')
 const setupDatabase = require('./lib/db')
 const setupAgentModel = require('./models/agent')
 const setupMetricModel = require('./models/metric')
