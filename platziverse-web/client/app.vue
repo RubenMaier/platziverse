@@ -18,6 +18,7 @@ body {
 const io = require("socket.io-client"); // nos permite ejecutar socketio desde el lado del cliente
 const socket = io(); // nos conectamos al servidor
 const request = require("request-promise-native");
+const { serverHost } = require("platziverse-utils");
 
 module.exports = {
   data() {
@@ -36,7 +37,7 @@ module.exports = {
     async initialize() {
       const opciones = {
         method: "GET",
-        url: "http://localhost:8080/agents",
+        url: `${serverHost}/agents`,
         json: true
       };
       let resultado;

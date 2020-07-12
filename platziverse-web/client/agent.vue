@@ -79,6 +79,7 @@
 
 <script>
 const request = require("request-promise-native");
+const { serverHost } = require("platziverse-utils");
 
 module.exports = {
   props: ["uuid", "socket"],
@@ -104,7 +105,7 @@ module.exports = {
       const { uuid } = this;
       const opciones = {
         method: "GET",
-        url: `http://localhost:8080/agent/${uuid}`,
+        url: `${serverHost}/agent/${uuid}`,
         json: true
       };
       let agent;
@@ -129,7 +130,7 @@ module.exports = {
       const { uuid } = this;
       const opciones = {
         method: "GET",
-        url: `http://localhost:8080/metrics/${uuid}`,
+        url: `${serverHost}/metrics/${uuid}`,
         json: true
       };
       let metricas;

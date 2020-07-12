@@ -29,6 +29,7 @@ const request = require("request-promise-native");
 const LineChart = require("./line-chart");
 const moment = require("moment"); // me permite formatear fechas de una forma amigable para el usuario
 const randomColor = require("random-material-color");
+const { serverHost } = require("platziverse-utils");
 
 module.exports = {
   name: "metric",
@@ -55,7 +56,7 @@ module.exports = {
       this.color = randomColor.getColor();
       const opciones = {
         method: "GET",
-        url: `http://localhost:8080/metrics/${uuid}/${type}`,
+        url: `${serverHost}/metrics/${uuid}/${type}`,
         json: true
       };
       let resultado;

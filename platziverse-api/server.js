@@ -9,7 +9,7 @@ const { middlewareDeErrores, handleFatalError } = require('platziverse-utils')
 
 const api = require('./api')
 
-const puerto = process.env.POST || 3000
+const puerto = process.env.POST || 3001
 const app = asyncify(express()) // tambien necesito que mi express soporte funciones asincronas por lo que debo usar asyncify
 const server = http.createServer(app)
 

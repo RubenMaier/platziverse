@@ -6,9 +6,9 @@ const secretKey = {
   secret: process.env.SECRET || 'platzi'
 }
 
-const endpoint = process.env.API_ENDPOINT || 'http://localhost:3000'
+const endpoint = process.env.API_ENDPOINT || 'http://localhost:3001'
 const apiToken = process.env.API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBsYXR6aSIsImFkbWluIjp0cnVlLCJwZXJtaXNzaW9ucyI6WyJtZXRyaWNzOnJlYWQiXSwiaWF0IjoxNTQ3NzY1MTc5fQ.XU7u5t1q0-M2pnCLvfLsMU9LuoRs1Ey5wLNVWOmLnQ8'
-
+const serverHost = process.env.SERVER_HOST || 'http://localhost:8080'
 /*
 para crear ese token hicimos lo siguiente:
 1) con la terminal nos fuimos al directorio platziverse-api
@@ -19,7 +19,7 @@ auth.firmar({username: 'platzi', admin: true, permissions: ['metrics:read']}, 'p
 4) el retorno de esta ejecucion nos genero el token de interes
 */
 
-function parsePayload (payload) {
+function parsePayload(payload) {
   // si el payload es un buffer...
   if (payload instanceof Buffer) {
     payload = payload.toString('utf8') // necesitamos que sea un string para hacer un jsonParse
@@ -34,12 +34,12 @@ function parsePayload (payload) {
   return payload
 } // payload = contenido
 
-function extend (obj, values) {
+function extend(obj, values) {
   const clone = Object.assign({}, obj)
   return Object.assign(clone, values)
 }
 
-function crearConfigDB (valor, debug) {
+function crearConfigDB(valor, debug) {
   return {
     // informacion que necesita sequelize para funcionar
     database: process.env.DB_NAME || 'platziverse', // queremos poder tener este modulo configurable
@@ -56,7 +56,7 @@ function crearConfigDB (valor, debug) {
   }
 }
 
-function pipe (EmiterFuente, EmiterTarget) { // pipe entre el agente y el socket.io
+function pipe(EmiterFuente, EmiterTarget) { // pipe entre el agente y el socket.io
   if (!EmiterFuente || !EmiterTarget) {
     throw TypeError('Por favor envia un EventEmitter como argumentos')
   }
@@ -84,7 +84,7 @@ function pipe (EmiterFuente, EmiterTarget) { // pipe entre el agente y el socket
   }
 }
 
-function middlewareDeErrores (debug) {
+function middlewareDeErrores(debug) {
   return function (err, req, res, next) {
     debug(`Error: ${err.message}`)
     if (err.message.match(/no encontrado/)) {
@@ -94,7 +94,7 @@ function middlewareDeErrores (debug) {
   }
 }
 
-function handleFatalError (err) {
+function handleFatalError(err) {
   console.error(`${chalk.red('[fatal error]')} ${err.message}`)
   console.error(err.stack) // muestro el stack traise
   process.exit(1) // matamos el proceso, el uno es el "exit could" que me indica que se termino con error
@@ -109,5 +109,6 @@ module.exports = {
   endpoint,
   apiToken,
   middlewareDeErrores,
-  handleFatalError
+  handleFatalError,
+  serverHost
 }
